@@ -12,8 +12,8 @@ const app = express();
 
 // --- Middleware CORS ---
 app.use(cors({
-  origin: "http://localhost:5173", // permetti solo al frontend su questa origine
-  methods: ["GET", "POST", "PUT", "DELETE"],
+  origin: true,
+  methods: ["GET", "POST", "PUT", "DELETE", "PATCH"],
   credentials: true,
 }));
 
@@ -65,9 +65,9 @@ app.use((err, _req, res, _next) => {
 
 // Avvia server e Vite
 (async () => {
-  const port = parseInt(process.env.PORT || "5001", 10);
-  const server = app.listen(port, () => {
-    log(`Server running on port ${port}`);
+  const port = parseInt(process.env.PORT || "5000", 10);
+  const server = app.listen(port, "0.0.0.0", () => {
+    log(`Server running on 0.0.0.0:${port}`);
   });
 
   if (process.env.NODE_ENV === "development") {
