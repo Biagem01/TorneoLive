@@ -6,6 +6,7 @@ import {
   players,
   matches,
   goals,
+  users,
   type Tournament,
   type InsertTournament,
   type Team,
@@ -16,10 +17,26 @@ import {
   type InsertMatch,
   type Goal,
   type InsertGoal,
+  type User,
+  type InsertUser,
 } from "@shared/schema";
 import { IStorage } from "./storage";
+import session from "express-session";
+import connectPg from "connect-pg-simple";
+import { neon } from "@neondatabase/serverless";
+
+const PostgresSessionStore = connectPg(session);
 
 export class PgStorage implements IStorage {
+  sessionStore: session.Store;
+
+  constructor() {
+    const sql = neon(process.env.DATABASE_URL!);
+    this.sessionStore = new PostgresSessionStore({
+      conString: process.env.DATABASE_URL!,
+      createTableIfMissing: true,
+    });
+  }
   // Tournaments
   async createTournament(tournament: InsertTournament): Promise<Tournament> {
     const [result] = await db.insert(tournaments).values(tournament).returning();
@@ -230,6 +247,22 @@ export class PgStorage implements IStorage {
 
     return Array.from(scorerMap.values())
       .sort((a, b) => b.goals - a.goals);
+  }
+
+  // Users
+  async createUser(user: InsertUser): Promise<User> {
+    const [result] = await db.insert(users).values(user).returning();
+    return result;
+  }
+
+  async getUser(id: string): Promise<User | undefined> {
+    const result = await db.select().from(users).where(eq(users.id, id));
+    return result[0];
+  }
+
+  async getUserByEmail(email: string): Promise<User | undefined> {
+    const result = await db.select().from(users).where(eq(users.email, email));
+    return result[0];
   }
 }
 
