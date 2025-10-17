@@ -1,23 +1,18 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Trophy, Settings, Moon, Sun } from "lucide-react";
+import { Trophy, LogOut, Moon, Sun, User } from "lucide-react";
 import { Link, useLocation } from "wouter";
+import { useAuth } from "@/hooks/use-auth";
 
 export default function Header() {
-  const [isAdmin, setIsAdmin] = useState(false);
   const [isDark, setIsDark] = useState(true);
   const [location] = useLocation();
+  const { user, logoutMutation } = useAuth();
 
   const toggleTheme = () => {
     setIsDark(!isDark);
     document.documentElement.classList.toggle("dark");
-    console.log("Theme toggled:", !isDark ? "dark" : "light");
-  };
-
-  const toggleAdmin = () => {
-    setIsAdmin(!isAdmin);
-    console.log("Admin mode:", !isAdmin);
   };
 
   return (
@@ -32,30 +27,30 @@ export default function Header() {
           <nav className="hidden md:flex items-center gap-2">
             <Link href="/" data-testid="link-tournaments">
               <Button variant={location === "/" ? "default" : "ghost"}>
-                Tournaments
+                Tornei
               </Button>
             </Link>
-            <Link href="/admin" data-testid="link-admin">
-              <Button variant={location === "/admin" ? "default" : "ghost"}>
-                Admin
-              </Button>
-            </Link>
+            {user?.role === "admin" && (
+              <Link href="/admin" data-testid="link-admin">
+                <Button variant={location === "/admin" ? "default" : "ghost"}>
+                  Admin
+                </Button>
+              </Link>
+            )}
           </nav>
 
           <div className="flex items-center gap-3">
-            {isAdmin && (
-              <Badge className="bg-chart-3 text-foreground" data-testid="badge-admin-mode">
-                Admin Mode
-              </Badge>
+            {user && (
+              <div className="flex items-center gap-2">
+                <Badge variant="secondary" className="flex items-center gap-1">
+                  <User className="w-3 h-3" />
+                  {user.email}
+                </Badge>
+                {user.role === "admin" && (
+                  <Badge className="bg-orange-500">Admin</Badge>
+                )}
+              </div>
             )}
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={toggleAdmin}
-              data-testid="button-toggle-admin"
-            >
-              <Settings className="w-5 h-5" />
-            </Button>
             <Button
               variant="ghost"
               size="icon"
@@ -64,6 +59,17 @@ export default function Header() {
             >
               {isDark ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
             </Button>
+            {user && (
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => logoutMutation.mutate()}
+                data-testid="button-logout"
+                title="Esci"
+              >
+                <LogOut className="w-5 h-5" />
+              </Button>
+            )}
           </div>
         </div>
       </div>
