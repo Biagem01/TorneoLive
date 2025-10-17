@@ -58,8 +58,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     },
   });
 
-  const loginMutation = useMutation({
-    mutationFn: async (credentials: LoginData) => {
+  const loginMutation = useMutation<SelectUser, Error, LoginData>({
+    mutationFn: async (credentials) => {
       const res = await apiRequest("POST", "/api/login", credentials);
       return await res.json();
     },
@@ -70,7 +70,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         description: "Benvenuto!",
       });
     },
-    onError: (error: Error) => {
+    onError: (error) => {
       toast({
         title: "Errore di accesso",
         description: error.message,
@@ -79,8 +79,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     },
   });
 
-  const registerMutation = useMutation({
-    mutationFn: async (credentials: InsertUser) => {
+  const registerMutation = useMutation<SelectUser, Error, InsertUser>({
+    mutationFn: async (credentials) => {
       const res = await apiRequest("POST", "/api/register", credentials);
       return await res.json();
     },
@@ -91,7 +91,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         description: "Benvenuto!",
       });
     },
-    onError: (error: Error) {
+    onError: (error) => {
       toast({
         title: "Errore di registrazione",
         description: error.message,
@@ -100,7 +100,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     },
   });
 
-  const logoutMutation = useMutation({
+  const logoutMutation = useMutation<void, Error, void>({
     mutationFn: async () => {
       await apiRequest("POST", "/api/logout");
     },
@@ -111,7 +111,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         description: "Arrivederci!",
       });
     },
-    onError: (error: Error) {
+    onError: (error) => {
       toast({
         title: "Errore",
         description: error.message,

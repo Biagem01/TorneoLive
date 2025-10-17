@@ -90,7 +90,13 @@ export class MemStorage implements IStorage {
   // Tournaments
   async createTournament(tournament: InsertTournament): Promise<Tournament> {
     const id = randomUUID();
-    const newTournament: Tournament = { ...tournament, id };
+    const newTournament: Tournament = { 
+      ...tournament, 
+      id,
+      status: tournament.status || "upcoming",
+      startDate: tournament.startDate || null,
+      endDate: tournament.endDate || null
+    };
     this.tournaments.set(id, newTournament);
     return newTournament;
   }
@@ -148,7 +154,11 @@ export class MemStorage implements IStorage {
   // Players
   async createPlayer(player: InsertPlayer): Promise<Player> {
     const id = randomUUID();
-    const newPlayer: Player = { ...player, id };
+    const newPlayer: Player = { 
+      ...player, 
+      id,
+      jerseyNumber: player.jerseyNumber || null
+    };
     this.players.set(id, newPlayer);
     return newPlayer;
   }
@@ -178,7 +188,13 @@ export class MemStorage implements IStorage {
   // Matches
   async createMatch(match: InsertMatch): Promise<Match> {
     const id = randomUUID();
-    const newMatch: Match = { ...match, id };
+    const newMatch: Match = { 
+      ...match, 
+      id,
+      status: match.status || "scheduled",
+      scoreA: match.scoreA || null,
+      scoreB: match.scoreB || null
+    };
     this.matches.set(id, newMatch);
     return newMatch;
   }
@@ -302,7 +318,7 @@ export class MemStorage implements IStorage {
     
     const scorerMap = new Map<string, any>();
 
-    for (const player of this.players.values()) {
+    for (const player of Array.from(this.players.values())) {
       if (!teamIds.has(player.teamId)) continue;
       
       const goals = await this.getGoalsByPlayer(player.id);
@@ -324,7 +340,12 @@ export class MemStorage implements IStorage {
   // Users
   async createUser(user: InsertUser): Promise<User> {
     const id = randomUUID();
-    const newUser: User = { ...user, id, createdAt: new Date() };
+    const newUser: User = { 
+      ...user, 
+      id, 
+      role: user.role || "user",
+      createdAt: new Date() 
+    };
     this.users.set(id, newUser);
     return newUser;
   }
