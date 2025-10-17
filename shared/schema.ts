@@ -6,8 +6,8 @@ import { z } from "zod";
 export const tournaments = pgTable("tournaments", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
   name: text("name").notNull(),
-  startDate: timestamp("start_date").notNull(),
-  endDate: timestamp("end_date").notNull(),
+  startDate: timestamp("start_date"),
+  endDate: timestamp("end_date"),
   status: text("status").notNull().default("upcoming"),
 });
 

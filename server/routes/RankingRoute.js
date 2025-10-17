@@ -1,5 +1,5 @@
 import express from "express";
-import { getRankingsByTournament } from "../controller/RankingController.js";
+import { getRankingsByTournament } from "../controller/RankingController";
 
 const router = express.Router();
 

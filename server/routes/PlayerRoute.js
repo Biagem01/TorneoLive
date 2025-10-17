@@ -1,5 +1,5 @@
 import express from "express";
-import PlayerController from "../controller/PlayerController.js";
+import PlayerController from "../controller/PlayerController";
 
 const router = express.Router();
 
