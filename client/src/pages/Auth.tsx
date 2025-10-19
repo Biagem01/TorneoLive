@@ -1,12 +1,12 @@
 import { useState } from "react";
 import { useAuth } from "@/hooks/use-auth";
-import { Redirect } from "wouter";
+import { Redirect, useLocation } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Trophy, Mail, Lock } from "lucide-react";
+import { Trophy, Mail, Lock, CheckCircle } from "lucide-react";
 
 export default function Auth() {
   const { user, loginMutation, registerMutation } = useAuth();
@@ -14,10 +14,10 @@ export default function Auth() {
   const [loginPassword, setLoginPassword] = useState("");
   const [registerEmail, setRegisterEmail] = useState("");
   const [registerPassword, setRegisterPassword] = useState("");
+  const [registerSuccessEmail, setRegisterSuccessEmail] = useState<string | null>(null);
+  const [, setLocation] = useLocation();
 
-  if (user) {
-    return <Redirect to="/" />;
-  }
+  if (user) return <Redirect to="/" />;
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -26,11 +26,12 @@ export default function Auth() {
 
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
-    registerMutation.mutate({ 
-      email: registerEmail, 
-      password: registerPassword,
-      role: "user"
-    });
+    registerMutation.mutate(
+      { email: registerEmail, password: registerPassword, role: "user" },
+      {
+        onSuccess: () => setRegisterSuccessEmail(registerEmail),
+      }
+    );
   };
 
   return (
@@ -81,6 +82,7 @@ export default function Auth() {
                 <TabsTrigger value="register">Registrati</TabsTrigger>
               </TabsList>
 
+              {/* Login */}
               <TabsContent value="login">
                 <form onSubmit={handleLogin} className="space-y-4">
                   <div className="space-y-2">
@@ -126,46 +128,67 @@ export default function Auth() {
                 </form>
               </TabsContent>
 
+              {/* Register */}
               <TabsContent value="register">
-                <form onSubmit={handleRegister} className="space-y-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="register-email" className="text-slate-200">Email</Label>
-                    <div className="relative">
-                      <Mail className="absolute left-3 top-3 h-4 w-4 text-slate-400" />
-                      <Input
-                        id="register-email"
-                        type="email"
-                        placeholder="tua@email.com"
-                        value={registerEmail}
-                        onChange={(e) => setRegisterEmail(e.target.value)}
-                        className="pl-10 bg-slate-900/50 border-slate-600 text-white"
-                        required
-                      />
-                    </div>
+                {registerSuccessEmail ? (
+                  <div className="text-center space-y-6 p-4">
+                    <CheckCircle className="mx-auto w-16 h-16 text-green-500" />
+                    <h2 className="text-2xl font-bold text-green-500">Registrazione completata!</h2>
+                    <p className="text-slate-300">
+                      Abbiamo inviato una email di verifica a <span className="font-medium">{registerSuccessEmail}</span>.<br />
+                      Controlla la tua casella di posta e clicca sul link per attivare il tuo account.
+                    </p>
+                    <Button
+                      className="bg-blue-600 hover:bg-blue-700 w-full"
+                      onClick={() => {
+                        setRegisterSuccessEmail(null);
+                        setLocation("/auth");
+                      }}
+                    >
+                      Torna al login
+                    </Button>
                   </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="register-password" className="text-slate-200">Password</Label>
-                    <div className="relative">
-                      <Lock className="absolute left-3 top-3 h-4 w-4 text-slate-400" />
-                      <Input
-                        id="register-password"
-                        type="password"
-                        placeholder="••••••••"
-                        value={registerPassword}
-                        onChange={(e) => setRegisterPassword(e.target.value)}
-                        className="pl-10 bg-slate-900/50 border-slate-600 text-white"
-                        required
-                      />
+                ) : (
+                  <form onSubmit={handleRegister} className="space-y-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="register-email" className="text-slate-200">Email</Label>
+                      <div className="relative">
+                        <Mail className="absolute left-3 top-3 h-4 w-4 text-slate-400" />
+                        <Input
+                          id="register-email"
+                          type="email"
+                          placeholder="tua@email.com"
+                          value={registerEmail}
+                          onChange={(e) => setRegisterEmail(e.target.value)}
+                          className="pl-10 bg-slate-900/50 border-slate-600 text-white"
+                          required
+                        />
+                      </div>
                     </div>
-                  </div>
-                  <Button
-                    type="submit"
-                    className="w-full bg-green-600 hover:bg-green-700"
-                    disabled={registerMutation.isPending}
-                  >
-                    {registerMutation.isPending ? "Registrazione..." : "Registrati"}
-                  </Button>
-                </form>
+                    <div className="space-y-2">
+                      <Label htmlFor="register-password" className="text-slate-200">Password</Label>
+                      <div className="relative">
+                        <Lock className="absolute left-3 top-3 h-4 w-4 text-slate-400" />
+                        <Input
+                          id="register-password"
+                          type="password"
+                          placeholder="••••••••"
+                          value={registerPassword}
+                          onChange={(e) => setRegisterPassword(e.target.value)}
+                          className="pl-10 bg-slate-900/50 border-slate-600 text-white"
+                          required
+                        />
+                      </div>
+                    </div>
+                    <Button
+                      type="submit"
+                      className="w-full bg-green-600 hover:bg-green-700"
+                      disabled={registerMutation.isPending}
+                    >
+                      {registerMutation.isPending ? "Registrazione..." : "Registrati"}
+                    </Button>
+                  </form>
+                )}
               </TabsContent>
             </Tabs>
           </CardContent>

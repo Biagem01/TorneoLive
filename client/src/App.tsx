@@ -10,6 +10,7 @@ import Admin from "@/pages/Admin";
 import Auth from "@/pages/Auth";
 import MatchDetail from "@/pages/MatchDetail";
 import NotFound from "@/pages/not-found";
+import VerifyPage from "@/pages/VerifyPage"; // ✅ importa la pagina di verifica
 
 function Router() {
   return (
@@ -18,6 +19,7 @@ function Router() {
       <ProtectedRoute path="/admin" component={Admin} requireAdmin={true} />
       <ProtectedRoute path="/matches/:id" component={MatchDetail} />
       <Route path="/auth" component={Auth} />
+      <Route path="/verify" component={VerifyPage} /> {/* ✅ nuova rotta */}
       <Route component={NotFound} />
     </Switch>
   );

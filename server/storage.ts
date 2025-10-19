@@ -9,11 +9,8 @@ import {
   type InsertMatch,
   type Goal,
   type InsertGoal,
-  type User,
-  type InsertUser,
 } from "@shared/schema";
 import { randomUUID } from "crypto";
-import session from "express-session";
 
 export interface IStorage {
   // Tournaments
@@ -53,18 +50,7 @@ export interface IStorage {
   // Statistics
   getRankings(tournamentId: string): Promise<any[]>;
   getTopScorers(tournamentId: string): Promise<any[]>;
-
-  // Users
-  createUser(user: InsertUser): Promise<User>;
-  getUser(id: string): Promise<User | undefined>;
-  getUserByEmail(email: string): Promise<User | undefined>;
-  
-  // Session store
-  sessionStore: session.Store;
 }
-
-import createMemoryStore from "memorystore";
-const MemoryStore = createMemoryStore(session);
 
 export class MemStorage implements IStorage {
   private tournaments: Map<string, Tournament>;
@@ -72,8 +58,6 @@ export class MemStorage implements IStorage {
   private players: Map<string, Player>;
   private matches: Map<string, Match>;
   private goals: Map<string, Goal>;
-  private users: Map<string, User>;
-  sessionStore: session.Store;
 
   constructor() {
     this.tournaments = new Map();
@@ -81,22 +65,12 @@ export class MemStorage implements IStorage {
     this.players = new Map();
     this.matches = new Map();
     this.goals = new Map();
-    this.users = new Map();
-    this.sessionStore = new MemoryStore({
-      checkPeriod: 86400000,
-    });
   }
 
   // Tournaments
   async createTournament(tournament: InsertTournament): Promise<Tournament> {
     const id = randomUUID();
-    const newTournament: Tournament = { 
-      ...tournament, 
-      id,
-      status: tournament.status || "upcoming",
-      startDate: tournament.startDate || null,
-      endDate: tournament.endDate || null
-    };
+    const newTournament: Tournament = { ...tournament, id };
     this.tournaments.set(id, newTournament);
     return newTournament;
   }
@@ -154,11 +128,7 @@ export class MemStorage implements IStorage {
   // Players
   async createPlayer(player: InsertPlayer): Promise<Player> {
     const id = randomUUID();
-    const newPlayer: Player = { 
-      ...player, 
-      id,
-      jerseyNumber: player.jerseyNumber || null
-    };
+    const newPlayer: Player = { ...player, id };
     this.players.set(id, newPlayer);
     return newPlayer;
   }
@@ -188,13 +158,7 @@ export class MemStorage implements IStorage {
   // Matches
   async createMatch(match: InsertMatch): Promise<Match> {
     const id = randomUUID();
-    const newMatch: Match = { 
-      ...match, 
-      id,
-      status: match.status || "scheduled",
-      scoreA: match.scoreA || null,
-      scoreB: match.scoreB || null
-    };
+    const newMatch: Match = { ...match, id };
     this.matches.set(id, newMatch);
     return newMatch;
   }
@@ -318,7 +282,7 @@ export class MemStorage implements IStorage {
     
     const scorerMap = new Map<string, any>();
 
-    for (const player of Array.from(this.players.values())) {
+    for (const player of this.players.values()) {
       if (!teamIds.has(player.teamId)) continue;
       
       const goals = await this.getGoalsByPlayer(player.id);
@@ -335,27 +299,6 @@ export class MemStorage implements IStorage {
 
     return Array.from(scorerMap.values())
       .sort((a, b) => b.goals - a.goals);
-  }
-
-  // Users
-  async createUser(user: InsertUser): Promise<User> {
-    const id = randomUUID();
-    const newUser: User = { 
-      ...user, 
-      id, 
-      role: user.role || "user",
-      createdAt: new Date() 
-    };
-    this.users.set(id, newUser);
-    return newUser;
-  }
-
-  async getUser(id: string): Promise<User | undefined> {
-    return this.users.get(id);
-  }
-
-  async getUserByEmail(email: string): Promise<User | undefined> {
-    return Array.from(this.users.values()).find(u => u.email === email);
   }
 }
 

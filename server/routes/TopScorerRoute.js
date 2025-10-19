@@ -1,6 +1,6 @@
 // routes/topScorers.js
 import express from "express";
-import { getTopScorersByTournament } from "../controller/TopScorerController";
+import { getTopScorersByTournament } from "../controller/TopScorerController.js";
 
 const router = express.Router();
 

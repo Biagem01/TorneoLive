@@ -1,6 +1,6 @@
 // server/routes/TournamentRoute.js
 import express from "express";
-import { TournamentController } from "../controller/TournamentController";
+import { TournamentController } from "../controller/TournamentController.js";
 
 const router = express.Router();
 
