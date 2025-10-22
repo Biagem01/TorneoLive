@@ -313,8 +313,8 @@ const addScorerFromList = (team: "A" | "B", player: Player) => {
 
         {/* MODAL */}
         {editingMatch && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
-            <div className="bg-white rounded-2xl p-6 w-[420px] max-h-[90vh] overflow-y-auto">
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 animate-in fade-in duration-200">
+            <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-2xl p-6 w-full max-w-xl max-h-[95vh] overflow-y-auto animate-in slide-in-from-bottom duration-300">
               <MatchEditForm
                 match={{
                   id: editingMatch.id,
