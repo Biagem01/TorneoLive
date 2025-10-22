@@ -15,6 +15,11 @@ interface GoalScorer {
   minute: string;
 }
 
+interface MatchResultFormProps {
+  existingMatch?: Match | null;
+  onClose?: () => void;
+}
+
 export default function MatchResultForm() {
   const { toast } = useToast();
   const [selectedTournament, setSelectedTournament] = useState("");
@@ -138,6 +143,7 @@ export default function MatchResultForm() {
       scoreTeam1: Number(scoreA) || 0,
       scoreTeam2: Number(scoreB) || 0,
       match_date: formattedDate,
+      status, // 👈 aggiunto
       scorersA: scorersA.map((s) => ({ ...s, minute: Number(s.minute) || 0 })),
       scorersB: scorersB.map((s) => ({ ...s, minute: Number(s.minute) || 0 })),
     });

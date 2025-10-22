@@ -139,22 +139,27 @@ export default function Home() {
   ];
 
   return (
-    <div className="min-h-screen">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-slate-100 dark:from-slate-950 dark:via-slate-900 dark:to-slate-950">
       <Header />
       <Hero />
       
-      <div className="max-w-7xl mx-auto px-4 py-12 space-y-16">
+      <div className="max-w-7xl mx-auto px-4 py-16 space-y-20">
         <section>
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-            <StatsCard title="Tournaments" value={12} icon={Trophy} accentColor="primary" />
-            <StatsCard title="Teams" value={48} icon={Users} accentColor="chart-2" />
-            <StatsCard title="Matches" value={156} icon={Calendar} accentColor="chart-3" />
-            <StatsCard title="Goals Scored" value={423} icon={Target} accentColor="chart-4" />
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-6">
+            <StatsCard title="Tornei" value={12} icon={Trophy} accentColor="primary" />
+            <StatsCard title="Squadre" value={48} icon={Users} accentColor="chart-2" />
+            <StatsCard title="Partite" value={156} icon={Calendar} accentColor="chart-3" />
+            <StatsCard title="Goal Segnati" value={423} icon={Target} accentColor="chart-4" />
           </div>
         </section>
 
         <section>
-          <h2 className="text-3xl font-bold mb-6">Active Tournaments</h2>
+          <div className="mb-8">
+            <h2 className="text-4xl font-bold bg-gradient-to-r from-slate-900 to-slate-700 dark:from-white dark:to-slate-300 bg-clip-text text-transparent mb-3">
+              Tornei Attivi
+            </h2>
+            <p className="text-slate-600 dark:text-slate-400 text-lg">Gestisci e monitora tutti i tuoi tornei in corso</p>
+          </div>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {mockTournaments.map((tournament) => (
               <TournamentCard
@@ -167,7 +172,12 @@ export default function Home() {
         </section>
 
         <section>
-          <h2 className="text-3xl font-bold mb-6">Recent Matches</h2>
+          <div className="mb-8">
+            <h2 className="text-4xl font-bold bg-gradient-to-r from-slate-900 to-slate-700 dark:from-white dark:to-slate-300 bg-clip-text text-transparent mb-3">
+              Partite Recenti
+            </h2>
+            <p className="text-slate-600 dark:text-slate-400 text-lg">Risultati e match in programma</p>
+          </div>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {mockMatches.map((match, index) => (
               <MatchCard key={index} {...match} />

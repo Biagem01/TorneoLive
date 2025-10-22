@@ -12,5 +12,9 @@ router.get("/tournament/:tournamentId", MatchController.getByTournament);
 // GET: recupera un match singolo per id
 router.get("/:id", MatchController.getById);
 
+// PUT: aggiorna un match esistente
+router.put("/:id", MatchController.update);
+
+
 
 export default router;
