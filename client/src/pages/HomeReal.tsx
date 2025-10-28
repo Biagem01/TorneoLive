@@ -3,8 +3,8 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useLocation } from "wouter";
 import Header from "@/components/Header";
 import Hero from "@/components/Hero";
-import TournamentCard from "@/components/TournamentCard";
-import MatchCard from "@/components/MatchCard";
+import TournamentList from "@/components/TournamentList";
+import MatchList from "@/components/MatchList";
 import MatchEditForm from "@/components/MatchEditForm";
 import RankingsTable from "@/components/RankingsTable";
 import TopScorersLeaderboard from "@/components/TopScorersLeaderboard";
@@ -300,21 +300,18 @@ const addScorerFromList = (team: "A" | "B", player: Player) => {
             </Select>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {tournaments.slice(0, 6).map(tournament => (
-              <TournamentCard
-                key={tournament.id}
-                id={tournament.id}
-                name={tournament.name}
-                startDate={tournament.startDate}
-                endDate={tournament.endDate}
-                status={tournament.status as any}
-                teamCount={allTeams.filter(t => t.tournamentId === tournament.id).length}
-                matchCount={matches.filter(m => m.tournamentId === tournament.id).length}
-                onClick={() => setSelectedTournament(tournament.id)}
-              />
-            ))}
-          </div>
+          <TournamentList
+            tournaments={tournaments.map(tournament => ({
+              id: tournament.id,
+              name: tournament.name,
+              startDate: tournament.startDate,
+              endDate: tournament.endDate,
+              status: tournament.status as any,
+              teamCount: allTeams.filter(t => t.tournamentId === tournament.id).length,
+              matchCount: matches.filter(m => m.tournamentId === tournament.id).length,
+            }))}
+            onSelectTournament={setSelectedTournament}
+          />
         </section>
 
         {/* DETTAGLI TORNEO SELEZIONATO */}
@@ -356,27 +353,25 @@ const addScorerFromList = (team: "A" | "B", player: Player) => {
 )}
 
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        {enrichedMatches.map(match => (
-          <MatchCard
-            key={match.id}
-            teamAName={match.teamAName || "Team A"}
-            teamBName={match.teamBName || "Team B"}
-            scoreA={match.scoreA}
-            scoreB={match.scoreB}
-            status={match.status as any}
-            matchDate={match.matchDate}
-            onClick={match.onClick}
-            onEdit={() => {
-              if (!match.teamAId || !match.teamBId) return;
-              setEditingMatch(match);
-              setScoreAInput(match.scoreA ?? 0);
-              setScoreBInput(match.scoreB ?? 0);
-              setStatusInput(match.status);
-            }}
-          />
-        ))}
-      </div>
+      <MatchList
+        matches={enrichedMatches.map(match => ({
+          id: match.id,
+          teamAName: match.teamAName || "Team A",
+          teamBName: match.teamBName || "Team B",
+          scoreA: match.scoreA,
+          scoreB: match.scoreB,
+          status: match.status as any,
+          matchDate: match.matchDate,
+          onClick: match.onClick,
+          onEdit: () => {
+            if (!match.teamAId || !match.teamBId) return;
+            setEditingMatch(match);
+            setScoreAInput(match.scoreA ?? 0);
+            setScoreBInput(match.scoreB ?? 0);
+            setStatusInput(match.status);
+          },
+        }))}
+      />
     </section>
 
     {/* --- SEZIONE RANKING GENERALE --- */}
