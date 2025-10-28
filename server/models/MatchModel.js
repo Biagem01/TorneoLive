@@ -53,10 +53,13 @@ class Match {
     scoreA: row.score_team1 ?? 0,
     scoreB: row.score_team2 ?? 0,
     matchDate: row.match_date,
-    status: row.status ?? "scheduled"  // ← qui
-
+    status: row.status ?? "scheduled",
+    scorersA: [],  // ← default vuoto
+    scorersB: []   // ← default vuoto
   }));
 }
+
+
 
 
 }

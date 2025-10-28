@@ -1,9 +1,6 @@
+// RankingModel.js
 import { pool } from "../db.js";
 
-/**
- * Recupera tutte le partite di un torneo (con nomi squadre)
- * e ritorna l'array raw di match per il controller/calcoli.
- */
 export async function getMatchesByTournament(tournamentId) {
   const [rows] = await pool.execute(
     `SELECT m.*,
@@ -19,3 +16,28 @@ export async function getMatchesByTournament(tournamentId) {
 
   return rows;
 }
+
+// Nuova funzione per prendere la struttura dei gironi
+export async function getTournamentStructure(tournamentId) {
+  const [rows] = await pool.execute(
+    "SELECT data FROM tournament_structure WHERE tournament_id = ?",
+    [tournamentId]
+  );
+
+  if (!rows.length) return null;
+
+  const data = rows[0].data;
+
+  // se è stringa, parsala, altrimenti restituisci direttamente l'oggetto
+  if (typeof data === "string") {
+    try {
+      return JSON.parse(data);
+    } catch (err) {
+      console.error("Failed to parse tournament_structure data:", err, data);
+      return null;
+    }
+  }
+
+  return data;
+}
+

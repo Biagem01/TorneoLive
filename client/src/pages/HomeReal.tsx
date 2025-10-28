@@ -22,6 +22,25 @@ interface MatchWithDetails extends Match {
   scorersB?: { playerName: string; minute: number }[];
 }
 
+interface GroupRanking {
+  name: string;
+  rankings: {
+    position: number;
+    teamName: string;
+    played: number;
+    won: number;
+    drawn: number;
+    lost: number;
+    goalsFor: number;
+    goalsAgainst: number;
+    goalDifference: number;
+    points: number;
+  }[];
+}
+
+
+
+
 export default function HomeReal() {
   const [selectedTournament, setSelectedTournament] = useState<string>("");
   const [, setLocation] = useLocation();
@@ -51,6 +70,7 @@ export default function HomeReal() {
     startDate: t.start_date ? new Date(t.start_date) : new Date(),
     endDate: t.end_date ? new Date(t.end_date) : new Date(),
     status: String(t.status || "upcoming"),
+    type: String(t.type || "league"),
   }));
 
   // --- FETCH SQUADRE ---
@@ -136,6 +156,36 @@ export default function HomeReal() {
     enabled: !!selectedTournament,
   });
 
+  // --- FETCH STRUTTURA (gruppi e knockout) ---
+const { data: structure, isLoading: loadingStructure } = useQuery({
+  queryKey: ["structure", selectedTournament],
+  queryFn: async () => {
+    if (!selectedTournament) return null;
+    const res = await fetch(`http://localhost:5001/api/tournaments/${selectedTournament}/structure`);
+    if (!res.ok) throw new Error("Errore nel caricamento struttura torneo");
+    return res.json();
+  },
+  enabled: !!selectedTournament,
+});
+
+const groupsForRanking = structure?.groups?.map((group: { name: string; teams: any[] }) => ({
+  name: group.name,
+  rankings: group.teams.map((team: any, idx: number) => ({
+    position: idx + 1,
+    teamName: team.name,
+    played: team.played ?? 0,
+    won: team.won ?? 0,
+    drawn: team.drawn ?? 0,
+    lost: team.lost ?? 0,
+    goalsFor: team.goalsFor ?? 0,
+    goalsAgainst: team.goalsAgainst ?? 0,
+    goalDifference: (team.goalsFor ?? 0) - (team.goalsAgainst ?? 0),
+    points: team.points ?? 0,
+  })),
+}));
+
+
+
   const topScorers = topScorersRaw.map(s => ({
     ...s,
     goals: s.goals ?? 0,
@@ -210,13 +260,11 @@ const enrichedMatches: MatchWithDetails[] = matches.map(match => {
 const addScorerFromList = (team: "A" | "B", player: Player) => {
   if (!editingMatch) return;
 
-  const minute = new Date().getMinutes(); // oppure lascia un input dinamico se vuoi inserire manualmente
+  const minute = new Date().getMinutes();
   if (team === "A") {
     setScorersA(prev => [...prev, { playerName: player.name, minute }]);
-    setScoreAInput(prev => prev + 1); // incrementa punteggio automaticamente
   } else {
     setScorersB(prev => [...prev, { playerName: player.name, minute }]);
-    setScoreBInput(prev => prev + 1);
   }
 };
 
@@ -270,46 +318,100 @@ const addScorerFromList = (team: "A" | "B", player: Player) => {
         </section>
 
         {/* DETTAGLI TORNEO SELEZIONATO */}
-        {selectedTournament && activeTournament && (
-          <>
-            <section>
-              <h2 className="text-3xl font-bold mb-6">Matches - {activeTournament.name}</h2>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                {enrichedMatches.map(match => (
-                  <MatchCard
-                    key={match.id}
-                    teamAName={match.teamAName || "Team A"}
-                    teamBName={match.teamBName || "Team B"}
-                    scoreA={match.scoreA}
-                    scoreB={match.scoreB}
-                    status={match.status as any}
-                    matchDate={match.matchDate}
-                    onClick={match.onClick}
-                    onEdit={() => {
-                    console.log("Editing match selezionato:", match);
-                    console.log("teamAId:", match.teamAId, "teamBId:", match.teamBId);
+       {selectedTournament && activeTournament && (
+  <>
+    {/* --- SEZIONE PARTITE --- */}
+    <section>
+      <h2 className="text-3xl font-bold mb-6">Matches - {activeTournament.name}</h2>
 
-                    if (!match.teamAId || !match.teamBId) {
-                      console.error("Match non valido, squadre mancanti!");
-                      return;
-                    }
+      {activeTournament?.type === "groupKnockout" && (
+  <button
+    onClick={async () => {
+      if (!selectedTournament) return;
+      const confirmGen = confirm("Vuoi generare i gironi per questo torneo?");
+      if (!confirmGen) return;
 
-                    setEditingMatch(match);
-                    setScoreAInput(match.scoreA ?? 0);
-                    setScoreBInput(match.scoreB ?? 0);
-                    setStatusInput(match.status);
-                  }}
-                  />
-                ))}
-              </div>
-            </section>
+      try {
+        const res = await fetch(
+          `http://localhost:5001/api/tournaments/${selectedTournament}/generate-structure`,
+          { method: "POST" }
+        );
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error || "Errore durante la generazione");
+        alert("Gironi generati con successo!");
+        console.log("✅ Struttura generata:", data);
 
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-              {rankings.length > 0 && <RankingsTable rankings={rankings} />}
-              {topScorers.length > 0 && <TopScorersLeaderboard scorers={topScorers} />}
-            </div>
-          </>
-        )}
+        queryClient.invalidateQueries({ queryKey: ["matches", selectedTournament] });
+        queryClient.invalidateQueries({ queryKey: ["rankings", selectedTournament] });
+        queryClient.invalidateQueries({ queryKey: ["structure", selectedTournament] });
+      } catch (err) {
+        console.error("❌ Errore generazione gironi:", err);
+        alert("Errore durante la generazione dei gironi");
+      }
+    }}
+    className="mb-4 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition"
+  >
+    Genera Gironi
+  </button>
+)}
+
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        {enrichedMatches.map(match => (
+          <MatchCard
+            key={match.id}
+            teamAName={match.teamAName || "Team A"}
+            teamBName={match.teamBName || "Team B"}
+            scoreA={match.scoreA}
+            scoreB={match.scoreB}
+            status={match.status as any}
+            matchDate={match.matchDate}
+            onClick={match.onClick}
+            onEdit={() => {
+              if (!match.teamAId || !match.teamBId) return;
+              setEditingMatch(match);
+              setScoreAInput(match.scoreA ?? 0);
+              setScoreBInput(match.scoreB ?? 0);
+              setStatusInput(match.status);
+            }}
+          />
+        ))}
+      </div>
+    </section>
+
+    {/* --- SEZIONE RANKING GENERALE --- */}
+   {/* --- SEZIONE CLASSIFICHE --- */}
+{activeTournament?.type === "league" && rankings.length > 0 && (
+  <section className="mt-12">
+    <h2 className="text-3xl font-bold mb-6">Overall Rankings</h2>
+    <RankingsTable rankings={rankings} />
+  </section>
+)}
+
+{activeTournament?.type === "groupKnockout" && groupsForRanking?.length > 0 && (
+  <section className="mt-12">
+    <h2 className="text-3xl font-bold mb-6">Group Rankings</h2>
+    {groupsForRanking.map((group: GroupRanking) => (
+      <div key={group.name} className="mb-8">
+        <h3 className="text-2xl font-semibold mb-4">{group.name}</h3>
+        <RankingsTable rankings={group.rankings} />
+      </div>
+    ))}
+  </section>
+)}
+
+
+
+    {/* --- SEZIONE TOP SCORERS --- */}
+    {topScorers.length > 0 && (
+      <section className="mt-12">
+        <h2 className="text-3xl font-bold mb-6">Top Scorers</h2>
+        <TopScorersLeaderboard scorers={topScorers} />
+      </section>
+    )}
+  </>
+)}
+
 
         {/* MODAL */}
         {editingMatch && (

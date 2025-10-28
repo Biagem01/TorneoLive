@@ -9,6 +9,7 @@ export const tournaments = pgTable("tournaments", {
   startDate: timestamp("start_date"),
   endDate: timestamp("end_date"),
   status: text("status").notNull().default("upcoming"),
+  type: text("type").notNull().default("league"), // aggiungi questo
 });
 
 export const teams = pgTable("teams", {

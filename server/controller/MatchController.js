@@ -17,7 +17,7 @@ class MatchController {
         scorersB = [],
       } = req.body;
 
-      if (!tournament_id || !team1_id || !team2_id || !match_date) {
+      if (!tournament_id || !team1_id || !team2_id) {
         return res.status(400).json({ error: "Required fields missing" });
       }
 

@@ -21,7 +21,7 @@ export interface MatchWithScorers {
   scoreB: number;
   status: string;
   matchDate: Date;
-  scorersA?: GoalScorer[];
-  scorersB?: GoalScorer[];
+  scorersA: GoalScorer[];
+  scorersB: GoalScorer[];
 }
 

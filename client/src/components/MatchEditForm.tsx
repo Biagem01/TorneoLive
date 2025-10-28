@@ -25,6 +25,9 @@ interface MatchEditFormProps {
   onClose: () => void;
 }
 
+// ✅ URL base per le API
+const API_BASE = "http://localhost:5001/api";
+
 export default function MatchEditForm({ match, onSave, onClose }: MatchEditFormProps) {
   const [scoreA, setScoreA] = useState(match.scoreA ?? 0);
   const [scoreB, setScoreB] = useState(match.scoreB ?? 0);
@@ -45,11 +48,13 @@ export default function MatchEditForm({ match, onSave, onClose }: MatchEditFormP
   const [newScorerA, setNewScorerA] = useState({ playerId: "", minute: "" });
   const [newScorerB, setNewScorerB] = useState({ playerId: "", minute: "" });
 
-  useEffect(() => {
-    setScorersA(match.scorersA || []);
-    setScorersB(match.scorersB || []);
-  }, [match]);
+  // ✅ Imposta i marcatori iniziali
+ useEffect(() => {
+  setScorersA(match.scorersA ?? []);
+  setScorersB(match.scorersB ?? []);
+}, [match]);
 
+  // ✅ Caricamento giocatori con URL assoluti
   useEffect(() => {
     if (!match?.teamAId || !match?.teamBId) return;
 
@@ -57,8 +62,8 @@ export default function MatchEditForm({ match, onSave, onClose }: MatchEditFormP
       setLoadingPlayers(true);
       try {
         const [resA, resB] = await Promise.all([
-          fetch(`/api/teams/${match.teamAId}/players`),
-          fetch(`/api/teams/${match.teamBId}/players`),
+          fetch(`${API_BASE}/teams/${match.teamAId}/players`),
+          fetch(`${API_BASE}/teams/${match.teamBId}/players`),
         ]);
 
         if (!resA.ok || !resB.ok) throw new Error("Errore nel caricamento giocatori");
@@ -67,7 +72,7 @@ export default function MatchEditForm({ match, onSave, onClose }: MatchEditFormP
         setPlayersA(dataA);
         setPlayersB(dataB);
       } catch (err) {
-        console.error("❌ Failed to fetch players:", err);
+        console.error("❌ Errore caricamento giocatori:", err);
         setPlayersA([]);
         setPlayersB([]);
       } finally {
@@ -78,6 +83,7 @@ export default function MatchEditForm({ match, onSave, onClose }: MatchEditFormP
     fetchPlayers();
   }, [match?.teamAId, match?.teamBId]);
 
+  // ✅ Aggiungi marcatore team A
   const addScorerA = () => {
     if (!newScorerA.playerId || !newScorerA.minute) return;
     const player = playersA.find((p) => String(p.id) === newScorerA.playerId);
@@ -92,6 +98,7 @@ export default function MatchEditForm({ match, onSave, onClose }: MatchEditFormP
     setNewScorerA({ playerId: "", minute: "" });
   };
 
+  // ✅ Aggiungi marcatore team B
   const addScorerB = () => {
     if (!newScorerB.playerId || !newScorerB.minute) return;
     const player = playersB.find((p) => String(p.id) === newScorerB.playerId);
@@ -106,27 +113,43 @@ export default function MatchEditForm({ match, onSave, onClose }: MatchEditFormP
     setNewScorerB({ playerId: "", minute: "" });
   };
 
-  const removeScorerA = (i: number) => {
-    const updated = scorersA.filter((_, idx) => idx !== i);
-    setScorersA(updated);
-  };
+  // ✅ Rimuovi marcatore
+  const removeScorerA = (i: number) => setScorersA((prev) => prev.filter((_, idx) => idx !== i));
+  const removeScorerB = (i: number) => setScorersB((prev) => prev.filter((_, idx) => idx !== i));
 
-  const removeScorerB = (i: number) => {
-    const updated = scorersB.filter((_, idx) => idx !== i);
-    setScorersB(updated);
-  };
-
-  const handleSave = () => {
-    onSave({
-      scoreA,
-      scoreB,
-      status,
-      matchDate: new Date(date),
-      scorersA,
-      scorersB,
+  // ✅ Salvataggio (PUT verso backend)
+  // ✅ Salvataggio (PUT verso backend) con cookie
+const handleSave = async () => {
+  try {
+    const response = await fetch(`${API_BASE}/matches/${match.id}`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      credentials: "include", // ← fondamentale per inviare il cookie
+      body: JSON.stringify({
+  scoreTeam1: scoreA,
+  scoreTeam2: scoreB,
+  status,
+  match_date: new Date(date),
+  scorersA,
+  scorersB,
+})
     });
-  };
 
+    if (!response.ok) {
+      const text = await response.text();
+      throw new Error(`Errore nel salvataggio della partita: ${text}`);
+    }
+
+    console.log("✅ Match aggiornato con successo");
+    onSave({ scoreA, scoreB, status, matchDate: new Date(date), scorersA, scorersB });
+  } catch (err) {
+    console.error("❌ Errore durante il salvataggio:", err);
+    alert(`Errore nel salvataggio. ${err}`);
+  }
+};
+
+
+  // ✅ Configurazioni stato
   const statusConfig = {
     scheduled: { label: "Programmata", color: "bg-blue-500", icon: "📅" },
     live: { label: "Live", color: "bg-red-500 animate-pulse", icon: "🔴" },
@@ -147,7 +170,8 @@ export default function MatchEditForm({ match, onSave, onClose }: MatchEditFormP
           </div>
         </div>
         <Badge className={`${statusConfig[status as keyof typeof statusConfig].color} text-white px-3 py-1`}>
-          {statusConfig[status as keyof typeof statusConfig].icon} {statusConfig[status as keyof typeof statusConfig].label}
+          {statusConfig[status as keyof typeof statusConfig].icon}{" "}
+          {statusConfig[status as keyof typeof statusConfig].label}
         </Badge>
       </div>
 

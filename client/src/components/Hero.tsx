@@ -1,102 +1,86 @@
-import { Button } from "@/components/ui/button";
-import { Trophy, Play, Sparkles, ArrowRight, Zap } from "lucide-react";
-import heroImage from "@assets/generated_images/Football_stadium_celebration_scene_b84a032b.png";
+import { Trophy, Zap, Users, TrendingUp } from "lucide-react";
 
 export default function Hero() {
   return (
-    <section className="relative min-h-[90vh] flex items-center overflow-hidden" data-testid="section-hero">
-      {/* Background Image */}
-      <div
-        className="absolute inset-0 bg-cover bg-center scale-105"
-        style={{ backgroundImage: `url(${heroImage})` }}
-      />
-      
-      {/* Dark Overlay with Gradient */}
-      <div className="absolute inset-0 bg-gradient-to-br from-slate-950/95 via-slate-900/92 to-emerald-950/85" />
-      
-      {/* Accent Gradients */}
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,_var(--tw-gradient-stops))] from-emerald-500/25 via-transparent to-transparent" />
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_bottom_left,_var(--tw-gradient-stops))] from-teal-500/20 via-transparent to-transparent" />
-      
-      {/* Animated Grid Pattern */}
-      <div className="absolute inset-0 bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] bg-[size:64px_64px] opacity-20"></div>
-      
-      <div className="relative max-w-7xl mx-auto px-4 py-24 w-full">
-        <div className="max-w-4xl">
-          {/* Badge */}
-          <div className="inline-flex items-center gap-3 px-5 py-2.5 rounded-full bg-gradient-to-r from-emerald-500/20 to-teal-500/20 border-2 border-emerald-500/30 mb-8 backdrop-blur-xl shadow-xl shadow-emerald-500/20 animate-in fade-in slide-in-from-bottom-4 duration-700">
-            <Sparkles className="w-5 h-5 text-emerald-400 animate-pulse" />
-            <span className="text-sm font-black text-emerald-300 tracking-wide">PIATTAFORMA PROFESSIONALE</span>
-            <Zap className="w-5 h-5 text-teal-400" />
-          </div>
-          
+    <section className="relative overflow-hidden bg-gradient-to-br from-blue-600 via-indigo-600 to-purple-700 dark:from-blue-900 dark:via-indigo-900 dark:to-purple-900">
+      {/* Decorative background elements */}
+      <div className="absolute inset-0 overflow-hidden opacity-20">
+        <div className="absolute -top-40 -right-40 w-96 h-96 bg-purple-500 rounded-full blur-3xl"></div>
+        <div className="absolute -bottom-40 -left-40 w-96 h-96 bg-blue-500 rounded-full blur-3xl"></div>
+        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-indigo-500 rounded-full blur-3xl"></div>
+      </div>
+
+      <div className="relative max-w-7xl mx-auto px-4 py-16 sm:py-24">
+        <div className="text-center space-y-8">
           {/* Main Heading */}
-          <h1 className="text-6xl md:text-7xl lg:text-8xl font-black mb-10 leading-[1.1] animate-in fade-in slide-in-from-bottom-8 duration-700 delay-100" data-testid="text-hero-title">
-            <span className="block bg-gradient-to-r from-white via-emerald-100 to-white bg-clip-text text-transparent drop-shadow-2xl">
-              Gestisci i tuoi
-            </span>
-            <span className="block bg-gradient-to-r from-emerald-400 via-teal-400 to-emerald-500 bg-clip-text text-transparent drop-shadow-2xl">
-              Tornei di Calcio
-            </span>
-            <span className="block text-4xl md:text-5xl lg:text-6xl mt-4 bg-gradient-to-r from-white/90 to-slate-300 bg-clip-text text-transparent">
+          <div className="space-y-4 animate-fadeIn">
+            <div className="inline-flex items-center gap-3 px-5 py-2 bg-white/10 backdrop-blur-sm rounded-full border border-white/20 mb-4">
+              <Zap className="w-5 h-5 text-yellow-300 animate-pulse" />
+              <span className="text-white/90 font-semibold text-sm sm:text-base font-display">
+                Live Tournament Management
+              </span>
+            </div>
+            
+            <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-display font-black text-white leading-tight">
+              Gestisci i tuoi{" "}
+              <span className="bg-gradient-to-r from-yellow-300 via-orange-300 to-pink-300 bg-clip-text text-transparent">
+                Tornei
+              </span>
+              <br />
               in Tempo Reale
-            </span>
-          </h1>
-          
-          {/* Subtitle */}
-          <p className="text-xl md:text-2xl text-slate-300 mb-12 max-w-3xl leading-relaxed font-medium animate-in fade-in slide-in-from-bottom-12 duration-700 delay-200" data-testid="text-hero-subtitle">
-            La piattaforma completa per organizzare tornei di calcio professionali. 
-            <span className="block mt-2 text-emerald-400 font-bold">
-              Gestisci partite, classifiche e statistiche con facilità e stile.
-            </span>
-          </p>
-          
-          {/* CTA Buttons */}
-          <div className="flex flex-wrap items-center gap-4 mb-16 animate-in fade-in slide-in-from-bottom-16 duration-700 delay-300">
-            <Button 
-              size="lg" 
-              className="group text-lg px-10 py-7 bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 shadow-2xl shadow-emerald-500/40 transition-all hover:scale-110 hover:shadow-emerald-500/60 border-2 border-emerald-400/30 font-black" 
-              data-testid="button-get-started"
-            >
-              <Trophy className="w-6 h-6 mr-3 group-hover:rotate-12 transition-transform" />
-              Inizia Ora
-              <ArrowRight className="w-5 h-5 ml-3 group-hover:translate-x-1 transition-transform" />
-            </Button>
-            <Button
-              size="lg"
-              variant="outline"
-              className="text-lg px-10 py-7 bg-white/10 backdrop-blur-xl border-2 border-white/20 hover:bg-white/20 hover:border-white/40 text-white transition-all hover:scale-105 shadow-xl font-bold"
-              data-testid="button-view-demo"
-            >
-              <Play className="w-6 h-6 mr-3" />
-              Guarda Demo
-            </Button>
+            </h1>
+            
+            <p className="text-lg sm:text-xl md:text-2xl text-white/80 max-w-3xl mx-auto font-medium leading-relaxed">
+              Crea tornei, gestisci squadre, traccia risultati e classifiche.
+              <br className="hidden sm:block" />
+              Tutto in un'unica piattaforma moderna e professionale.
+            </p>
           </div>
 
-          {/* Stats */}
-          <div className="grid grid-cols-3 gap-8 max-w-3xl animate-in fade-in slide-in-from-bottom-20 duration-700 delay-500">
-            <div className="group text-center p-6 rounded-2xl bg-white/5 backdrop-blur-xl border border-white/10 hover:bg-white/10 hover:border-emerald-500/30 transition-all hover:scale-105 hover:shadow-xl hover:shadow-emerald-500/20">
-              <div className="text-5xl font-black bg-gradient-to-br from-emerald-400 to-teal-400 bg-clip-text text-transparent mb-3 group-hover:scale-110 transition-transform">100+</div>
-              <div className="text-sm font-bold text-slate-300 uppercase tracking-wider">Tornei Gestiti</div>
+          {/* Feature Cards */}
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 mt-12 max-w-4xl mx-auto">
+            <div className="group bg-white/10 backdrop-blur-md border border-white/20 rounded-2xl p-6 hover:bg-white/20 transition-all duration-300 hover:shadow-2xl">
+              <div className="w-14 h-14 bg-gradient-to-br from-blue-400 to-blue-600 rounded-xl flex items-center justify-center mb-4 shadow-lg transition-all duration-300">
+                <Trophy className="w-7 h-7 text-white" />
+              </div>
+              <h3 className="text-xl font-display font-bold text-white mb-2">Gestione Tornei</h3>
+              <p className="text-white/70 font-medium">
+                Crea e gestisci tornei completi con facilità
+              </p>
             </div>
-            <div className="group text-center p-6 rounded-2xl bg-white/5 backdrop-blur-xl border-x-2 border-white/10 hover:bg-white/10 hover:border-emerald-500/30 transition-all hover:scale-105 hover:shadow-xl hover:shadow-emerald-500/20">
-              <div className="text-5xl font-black bg-gradient-to-br from-emerald-400 to-teal-400 bg-clip-text text-transparent mb-3 group-hover:scale-110 transition-transform">500+</div>
-              <div className="text-sm font-bold text-slate-300 uppercase tracking-wider">Squadre Attive</div>
+
+            <div className="group bg-white/10 backdrop-blur-md border border-white/20 rounded-2xl p-6 hover:bg-white/20 transition-all duration-300 hover:shadow-2xl">
+              <div className="w-14 h-14 bg-gradient-to-br from-indigo-400 to-indigo-600 rounded-xl flex items-center justify-center mb-4 shadow-lg transition-all duration-300">
+                <Users className="w-7 h-7 text-white" />
+              </div>
+              <h3 className="text-xl font-display font-bold text-white mb-2">Squadre & Giocatori</h3>
+              <p className="text-white/70 font-medium">
+                Traccia performance di squadre e giocatori
+              </p>
             </div>
-            <div className="group text-center p-6 rounded-2xl bg-white/5 backdrop-blur-xl border border-white/10 hover:bg-white/10 hover:border-emerald-500/30 transition-all hover:scale-105 hover:shadow-xl hover:shadow-emerald-500/20">
-              <div className="text-5xl font-black bg-gradient-to-br from-emerald-400 to-teal-400 bg-clip-text text-transparent mb-3 group-hover:scale-110 transition-transform">24/7</div>
-              <div className="text-sm font-bold text-slate-300 uppercase tracking-wider">Live Updates</div>
+
+            <div className="group bg-white/10 backdrop-blur-md border border-white/20 rounded-2xl p-6 hover:bg-white/20 transition-all duration-300 hover:shadow-2xl">
+              <div className="w-14 h-14 bg-gradient-to-br from-purple-400 to-purple-600 rounded-xl flex items-center justify-center mb-4 shadow-lg transition-all duration-300">
+                <TrendingUp className="w-7 h-7 text-white" />
+              </div>
+              <h3 className="text-xl font-display font-bold text-white mb-2">Classifiche Live</h3>
+              <p className="text-white/70 font-medium">
+                Classifiche aggiornate in tempo reale
+              </p>
             </div>
           </div>
         </div>
       </div>
 
-      {/* Bottom Fade */}
-      <div className="absolute bottom-0 left-0 right-0 h-40 bg-gradient-to-t from-background via-background/80 to-transparent"></div>
-      
-      {/* Decorative Elements */}
-      <div className="absolute top-20 right-20 w-72 h-72 bg-gradient-to-br from-emerald-500/20 to-teal-500/20 rounded-full blur-3xl animate-pulse"></div>
-      <div className="absolute bottom-20 left-20 w-96 h-96 bg-gradient-to-br from-teal-500/15 to-emerald-500/15 rounded-full blur-3xl animate-pulse delay-700"></div>
+      {/* Animated wave decoration at bottom */}
+      <div className="absolute bottom-0 left-0 right-0">
+        <svg viewBox="0 0 1440 120" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-full">
+          <path d="M0 120L60 105C120 90 240 60 360 45C480 30 600 30 720 37.5C840 45 960 60 1080 67.5C1200 75 1320 75 1380 75L1440 75V120H1380C1320 120 1200 120 1080 120C960 120 840 120 720 120C600 120 480 120 360 120C240 120 120 120 60 120H0Z" 
+                fill="currentColor" 
+                className="text-slate-50 dark:text-slate-950"
+          />
+        </svg>
+      </div>
     </section>
   );
 }

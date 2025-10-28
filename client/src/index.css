@@ -78,10 +78,10 @@
   --chart-4: 45 93% 47%;
   --chart-5: 0 84% 60%;
 
-  --font-sans: "Inter", system-ui, -apple-system, sans-serif;
-  --font-serif: Georgia, serif;
+  --font-sans: "Poppins", "Inter", system-ui, -apple-system, sans-serif;
+  --font-serif: "Playfair Display", Georgia, serif;
   --font-mono: "JetBrains Mono", ui-monospace, monospace;
-  --font-display: "Montserrat", system-ui, -apple-system, sans-serif;
+  --font-display: "Space Grotesk", "Montserrat", system-ui, -apple-system, sans-serif;
   --radius: .75rem;
   --shadow-2xs: 0px 1px 2px 0px hsl(220 13% 9% / 0.05);
   --shadow-xs: 0px 1px 3px 0px hsl(220 13% 9% / 0.1);
