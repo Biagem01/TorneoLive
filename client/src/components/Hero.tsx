@@ -16,12 +16,12 @@ export default function Hero() {
           <div className="space-y-4 animate-fadeIn">
             <div className="inline-flex items-center gap-3 px-5 py-2 bg-white/10 backdrop-blur-sm rounded-full border border-white/20 mb-4">
               <Zap className="w-5 h-5 text-yellow-300 animate-pulse" />
-              <span className="text-white/90 font-semibold text-sm sm:text-base font-display">
+              <span className="text-white/90 font-sans font-medium text-sm sm:text-base uppercase tracking-wide">
                 Live Tournament Management
               </span>
             </div>
             
-            <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-display font-black text-white leading-tight">
+            <h1 className="text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-display font-bold text-white leading-tight uppercase tracking-tight">
               Gestisci i tuoi{" "}
               <span className="bg-gradient-to-r from-yellow-300 via-orange-300 to-pink-300 bg-clip-text text-transparent">
                 Tornei
@@ -30,7 +30,7 @@ export default function Hero() {
               in Tempo Reale
             </h1>
             
-            <p className="text-lg sm:text-xl md:text-2xl text-white/80 max-w-3xl mx-auto font-medium leading-relaxed">
+            <p className="text-lg sm:text-xl md:text-2xl text-white/90 max-w-3xl mx-auto font-sans font-normal leading-relaxed">
               Crea tornei, gestisci squadre, traccia risultati e classifiche.
               <br className="hidden sm:block" />
               Tutto in un'unica piattaforma moderna e professionale.
@@ -43,8 +43,8 @@ export default function Hero() {
               <div className="w-14 h-14 bg-gradient-to-br from-blue-400 to-blue-600 rounded-xl flex items-center justify-center mb-4 shadow-lg transition-all duration-300">
                 <Trophy className="w-7 h-7 text-white" />
               </div>
-              <h3 className="text-xl font-display font-bold text-white mb-2">Gestione Tornei</h3>
-              <p className="text-white/70 font-medium">
+              <h3 className="text-xl font-serif font-bold text-white mb-2">Gestione Tornei</h3>
+              <p className="text-white/80 font-sans">
                 Crea e gestisci tornei completi con facilità
               </p>
             </div>
@@ -53,8 +53,8 @@ export default function Hero() {
               <div className="w-14 h-14 bg-gradient-to-br from-indigo-400 to-indigo-600 rounded-xl flex items-center justify-center mb-4 shadow-lg transition-all duration-300">
                 <Users className="w-7 h-7 text-white" />
               </div>
-              <h3 className="text-xl font-display font-bold text-white mb-2">Squadre & Giocatori</h3>
-              <p className="text-white/70 font-medium">
+              <h3 className="text-xl font-serif font-bold text-white mb-2">Squadre & Giocatori</h3>
+              <p className="text-white/80 font-sans">
                 Traccia performance di squadre e giocatori
               </p>
             </div>
@@ -63,8 +63,8 @@ export default function Hero() {
               <div className="w-14 h-14 bg-gradient-to-br from-purple-400 to-purple-600 rounded-xl flex items-center justify-center mb-4 shadow-lg transition-all duration-300">
                 <TrendingUp className="w-7 h-7 text-white" />
               </div>
-              <h3 className="text-xl font-display font-bold text-white mb-2">Classifiche Live</h3>
-              <p className="text-white/70 font-medium">
+              <h3 className="text-xl font-serif font-bold text-white mb-2">Classifiche Live</h3>
+              <p className="text-white/80 font-sans">
                 Classifiche aggiornate in tempo reale
               </p>
             </div>

@@ -24,16 +24,16 @@ export default function TopScorersLeaderboard({ scorers }: TopScorersLeaderboard
         <table className="w-full">
           <thead className="bg-muted/50 border-b border-border">
             <tr>
-              <th className="px-4 py-3 text-left text-xs font-semibold text-muted-foreground uppercase tracking-wider w-16">
+              <th className="px-4 py-3 text-left text-xs font-sans font-bold text-muted-foreground uppercase tracking-wider w-16">
                 #
               </th>
-              <th className="px-4 py-3 text-left text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+              <th className="px-4 py-3 text-left text-xs font-sans font-bold text-muted-foreground uppercase tracking-wider">
                 Giocatore
               </th>
-              <th className="px-4 py-3 text-left text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+              <th className="px-4 py-3 text-left text-xs font-sans font-bold text-muted-foreground uppercase tracking-wider">
                 Squadra
               </th>
-              <th className="px-4 py-3 text-center text-xs font-semibold text-foreground uppercase tracking-wider">
+              <th className="px-4 py-3 text-center text-xs font-sans font-bold text-foreground uppercase tracking-wider">
                 Goal
               </th>
             </tr>
@@ -51,20 +51,20 @@ export default function TopScorersLeaderboard({ scorers }: TopScorersLeaderboard
                   data-testid={`row-scorer-${position}`}
                 >
                   <td className="px-4 py-3" data-testid={`cell-scorer-${position}-position`}>
-                    <div className={`w-8 h-8 rounded-md ${config.bg} ${config.text} flex items-center justify-center font-bold text-sm`}>
+                    <div className={`w-8 h-8 rounded-md ${config.bg} ${config.text} flex items-center justify-center font-display font-bold text-sm`}>
                       {Icon ? <Icon className="w-4 h-4" /> : position}
                     </div>
                   </td>
                   <td className="px-4 py-3" data-testid={`cell-scorer-${position}-name`}>
-                    <span className="font-semibold text-foreground">{scorer.playerName}</span>
+                    <span className="font-serif font-bold text-foreground">{scorer.playerName}</span>
                   </td>
                   <td className="px-4 py-3" data-testid={`cell-scorer-${position}-team`}>
-                    <span className="text-sm text-muted-foreground">{scorer.teamName}</span>
+                    <span className="text-sm font-sans text-muted-foreground">{scorer.teamName}</span>
                   </td>
                   <td className="px-4 py-3 text-center" data-testid={`cell-scorer-${position}-goals`}>
-                    <div className="inline-flex items-center gap-2 px-3 py-1 rounded-md bg-primary text-primary-foreground font-bold">
+                    <div className="inline-flex items-center gap-2 px-3 py-1 rounded-md bg-primary text-primary-foreground font-display font-bold">
                       <Target className="w-4 h-4" />
-                      <span className="text-lg">{scorer.goals}</span>
+                      <span className="text-lg tabular-nums">{scorer.goals}</span>
                     </div>
                   </td>
                 </tr>

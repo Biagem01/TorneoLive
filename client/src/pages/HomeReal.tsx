@@ -1,58 +1,17 @@
-import { useState, useEffect } from "react";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 import { useLocation } from "wouter";
 import Header from "@/components/Header";
 import Hero from "@/components/Hero";
 import TournamentList from "@/components/TournamentList";
-import MatchList from "@/components/MatchList";
-import MatchEditForm from "@/components/MatchEditForm";
-import RankingsTable from "@/components/RankingsTable";
-import TopScorersLeaderboard from "@/components/TopScorersLeaderboard";
 import StatsCard from "@/components/StatsCard";
-import { Trophy, Users, Calendar, Target } from "lucide-react";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import type { Tournament, Match, Team } from "@shared/schema";
-import type { Player } from "@/types"; // usa il tipo corretto dal tuo progetto
-
-interface MatchWithDetails extends Match {
-  teamAName?: string;
-  teamBName?: string;
-  onClick?: () => void;
-  scorersA?: { playerName: string; minute: number }[];
-  scorersB?: { playerName: string; minute: number }[];
-}
-
-interface GroupRanking {
-  name: string;
-  rankings: {
-    position: number;
-    teamName: string;
-    played: number;
-    won: number;
-    drawn: number;
-    lost: number;
-    goalsFor: number;
-    goalsAgainst: number;
-    goalDifference: number;
-    points: number;
-  }[];
-}
+import { Trophy, Users } from "lucide-react";
+import type { Tournament, Team } from "@shared/schema";
 
 
 
 
 export default function HomeReal() {
-  const [selectedTournament, setSelectedTournament] = useState<string>("");
   const [, setLocation] = useLocation();
-  const [editingMatch, setEditingMatch] = useState<MatchWithDetails | null>(null);
-  const [scoreAInput, setScoreAInput] = useState<number>(0);
-  const [scoreBInput, setScoreBInput] = useState<number>(0);
-  const [statusInput, setStatusInput] = useState<string>("scheduled");
-  const queryClient = useQueryClient();
-  const [scorersA, setScorersA] = useState<{ playerName: string; minute: number }[]>([]);
-  const [scorersB, setScorersB] = useState<{ playerName: string; minute: number }[]>([]);
-  const [playersA, setPlayersA] = useState<Player[]>([]);
-  const [playersB, setPlayersB] = useState<Player[]>([]);
 
   // --- FETCH TORNEI ---
   const { data: tournamentsRaw = [] } = useQuery<any[]>({
@@ -74,16 +33,6 @@ export default function HomeReal() {
   }));
 
   // --- FETCH SQUADRE ---
-  const { data: teamsRaw = [] } = useQuery<any[]>({
-    queryKey: ["teams", selectedTournament],
-    queryFn: async () => {
-      const res = await fetch(`http://localhost:5001/api/tournaments/${selectedTournament}/teams`);
-      if (!res.ok) throw new Error("Failed to fetch teams");
-      return res.json();
-    },
-    enabled: !!selectedTournament,
-  });
-
   const { data: allTeamsRaw = [] } = useQuery({
     queryKey: ["allTeams"],
     queryFn: async () => {
@@ -93,180 +42,12 @@ export default function HomeReal() {
     },
   });
 
-  const mapTeams = (arr: any[]): Team[] =>
-    arr.map(t => ({
-      id: String(t.id),
-      name: String(t.name),
-      tournamentId: String(t.tournament_id),
-    }));
-
-  const teams: Team[] = mapTeams(teamsRaw);
-  const allTeams: Team[] = mapTeams(allTeamsRaw);
-
-  // --- FETCH PARTITE ---
-  const { data: matchesRaw = [] } = useQuery<any[]>({
-    queryKey: ["matches", selectedTournament],
-    queryFn: async () => {
-      const res = await fetch(`http://localhost:5001/api/matches/tournament/${selectedTournament}`);
-      if (!res.ok) throw new Error("Failed to fetch matches");
-      return res.json();
-    },
-    enabled: !!selectedTournament,
-  });
-
- const matches: MatchWithDetails[] = matchesRaw.map(m => ({
-    id: String(m.id),
-    tournamentId: String(m.tournament_id ?? m.tournamentId ?? ""), // fallback se cambia il nome
-    teamAId: String(m.teamAId ?? m.team1_id ?? ""), // controlla i due possibili nomi
-    teamBId: String(m.teamBId ?? m.team2_id ?? ""),
-    scoreA: Number(m.scoreA ?? m.score_team1 ?? 0),
-    scoreB: Number(m.scoreB ?? m.score_team2 ?? 0),
-    status: m.status ?? "scheduled",
-    matchDate: m.match_date ? new Date(m.match_date) : new Date(),
-    teamAName: m.teamAName ?? "Team A",
-    teamBName: m.teamBName ?? "Team B",
-}));
-
-  // --- FETCH RANKINGS ---
-  const { data: rankingsRaw = [] } = useQuery<any[]>({
-    queryKey: ["rankings", selectedTournament],
-    queryFn: async () => {
-      const res = await fetch(`http://localhost:5001/api/tournaments/${selectedTournament}/rankings`);
-      if (!res.ok) throw new Error("Failed to fetch rankings");
-      return res.json();
-    },
-    enabled: !!selectedTournament,
-  });
-
-  const rankings = rankingsRaw.map(r => ({
-    ...r,
-    points: r.points ?? 0,
-    goalsFor: r.goalsFor ?? 0,
-    goalsAgainst: r.goalsAgainst ?? 0,
+  const allTeams: Team[] = allTeamsRaw.map((t: any) => ({
+    id: String(t.id),
+    name: String(t.name),
+    tournamentId: String(t.tournament_id),
   }));
 
-  // --- FETCH TOP SCORERS ---
-  const { data: topScorersRaw = [] } = useQuery<any[]>({
-    queryKey: ["topScorers", selectedTournament],
-    queryFn: async () => {
-      const res = await fetch(`http://localhost:5001/api/tournaments/${selectedTournament}/top-scorers`);
-      if (!res.ok) throw new Error("Failed to fetch top scorers");
-      return res.json();
-    },
-    enabled: !!selectedTournament,
-  });
-
-  // --- FETCH STRUTTURA (gruppi e knockout) ---
-const { data: structure, isLoading: loadingStructure } = useQuery({
-  queryKey: ["structure", selectedTournament],
-  queryFn: async () => {
-    if (!selectedTournament) return null;
-    const res = await fetch(`http://localhost:5001/api/tournaments/${selectedTournament}/structure`);
-    if (!res.ok) throw new Error("Errore nel caricamento struttura torneo");
-    return res.json();
-  },
-  enabled: !!selectedTournament,
-});
-
-const groupsForRanking = structure?.groups?.map((group: { name: string; teams: any[] }) => ({
-  name: group.name,
-  rankings: group.teams.map((team: any, idx: number) => ({
-    position: idx + 1,
-    teamName: team.name,
-    played: team.played ?? 0,
-    won: team.won ?? 0,
-    drawn: team.drawn ?? 0,
-    lost: team.lost ?? 0,
-    goalsFor: team.goalsFor ?? 0,
-    goalsAgainst: team.goalsAgainst ?? 0,
-    goalDifference: (team.goalsFor ?? 0) - (team.goalsAgainst ?? 0),
-    points: team.points ?? 0,
-  })),
-}));
-
-
-
-  const topScorers = topScorersRaw.map(s => ({
-    ...s,
-    goals: s.goals ?? 0,
-  }));
-
-  // --- ARRICCHISCE LE PARTITE ---
-  // --- ARRICCHISCE LE PARTITE CON LOG ---
-const enrichedMatches: MatchWithDetails[] = matches.map(match => {
-  console.log("Raw match:", match); // log del match originale
-
-  const teamA = allTeams.find(t => t.id === match.teamAId && t.tournamentId === match.tournamentId);
-  const teamB = allTeams.find(t => t.id === match.teamBId && t.tournamentId === match.tournamentId);
-
-  if (!teamA) console.warn(`Team A non trovato per match ${match.id}:`, match.teamAId);
-  if (!teamB) console.warn(`Team B non trovato per match ${match.id}:`, match.teamBId);
-
-  const enriched = {
-    ...match,
-    teamAId: match.teamAId || "",
-    teamBId: match.teamBId || "",
-    teamAName: teamA?.name ?? match.teamAName ?? "Team A",
-    teamBName: teamB?.name ?? match.teamBName ?? "Team B",
-    onClick: () => setLocation(`/matches/${match.id}`),
-  };
-
-  console.log("Enriched match:", enriched);
-  return enriched;
-});
-
-  const totalMatches = matches.length;
-  const totalGoals = matches.reduce((acc, m) => acc + (m.scoreA ?? 0) + (m.scoreB ?? 0), 0);
-  const activeTournament = tournaments.find(t => t.id === selectedTournament);
-
-  // --- CARICA GIOCATORI E MARCATORI QUANDO APRO IL MODAL ---
-  useEffect(() => {
-  if (!editingMatch) return;
-
-  console.log("Apro modal per match:", editingMatch);
-
-  const fetchPlayersAndScorers = async () => {
-    try {
-      // squadra A
-      console.log(`Fetch giocatori squadra A: ${editingMatch.teamAId}`);
-      const resA = await fetch(`http://localhost:5001/api/teams/${editingMatch.teamAId}/players`);
-      const dataA: Player[] = resA.ok ? await resA.json() : [];
-      console.log("Players A:", dataA);
-      setPlayersA(dataA.map(p => ({ ...p, team_id: p.team_id })));
-
-      // squadra B
-      console.log(`Fetch giocatori squadra B: ${editingMatch.teamBId}`);
-      const resB = await fetch(`http://localhost:5001/api/teams/${editingMatch.teamBId}/players`);
-      const dataB: Player[] = resB.ok ? await resB.json() : [];
-      console.log("Players B:", dataB);
-      setPlayersB(dataB.map(p => ({ ...p, team_id: p.team_id })));
-
-      // marcatori già salvati
-      console.log("Marcatori iniziali:", editingMatch.scorersA, editingMatch.scorersB);
-      setScorersA(editingMatch.scorersA || []);
-      setScorersB(editingMatch.scorersB || []);
-    } catch (error) {
-      console.error("Errore nel fetch giocatori/marcatori:", error);
-      setPlayersA([]);
-      setPlayersB([]);
-      setScorersA([]);
-      setScorersB([]);
-    }
-  };
-
-  fetchPlayersAndScorers();
-}, [editingMatch]);
-
-const addScorerFromList = (team: "A" | "B", player: Player) => {
-  if (!editingMatch) return;
-
-  const minute = new Date().getMinutes();
-  if (team === "A") {
-    setScorersA(prev => [...prev, { playerName: player.name, minute }]);
-  } else {
-    setScorersB(prev => [...prev, { playerName: player.name, minute }]);
-  }
-};
 
   return (
     <div className="min-h-screen">
@@ -276,30 +57,15 @@ const addScorerFromList = (team: "A" | "B", player: Player) => {
       <div className="max-w-7xl mx-auto px-4 py-12 space-y-16">
         {/* STATISTICHE */}
         <section>
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+          <div className="grid grid-cols-2 gap-4">
             <StatsCard title="Tournaments" value={tournaments.length} icon={Trophy} accentColor="primary" />
             <StatsCard title="Teams" value={allTeams.length} icon={Users} accentColor="chart-2" />
-            <StatsCard title="Matches" value={totalMatches} icon={Calendar} accentColor="chart-3" />
-            <StatsCard title="Goals Scored" value={totalGoals} icon={Target} accentColor="chart-4" />
           </div>
         </section>
 
         {/* TORNEI */}
         <section>
-          <div className="flex items-center justify-between mb-6">
-            <h2 className="text-3xl font-bold">Tournaments</h2>
-            <Select value={selectedTournament} onValueChange={setSelectedTournament}>
-              <SelectTrigger className="w-64">
-                <SelectValue placeholder="Select a tournament" />
-              </SelectTrigger>
-              <SelectContent>
-                {tournaments.map(t => (
-                  <SelectItem key={t.id} value={t.id}>{t.name}</SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-
+          <h2 className="text-4xl font-display font-bold mb-6 uppercase tracking-tight" data-testid="heading-tournaments">Tournaments</h2>
           <TournamentList
             tournaments={tournaments.map(tournament => ({
               id: tournament.id,
@@ -308,146 +74,11 @@ const addScorerFromList = (team: "A" | "B", player: Player) => {
               endDate: tournament.endDate,
               status: tournament.status as any,
               teamCount: allTeams.filter(t => t.tournamentId === tournament.id).length,
-              matchCount: matches.filter(m => m.tournamentId === tournament.id).length,
+              matchCount: 0,
             }))}
-            onSelectTournament={setSelectedTournament}
+            onSelectTournament={(id) => setLocation(`/tournaments/${id}`)}
           />
         </section>
-
-        {/* DETTAGLI TORNEO SELEZIONATO */}
-       {selectedTournament && activeTournament && (
-  <>
-    {/* --- SEZIONE PARTITE --- */}
-    <section>
-      <h2 className="text-3xl font-bold mb-6">Matches - {activeTournament.name}</h2>
-
-      {activeTournament?.type === "groupKnockout" && (
-  <button
-    onClick={async () => {
-      if (!selectedTournament) return;
-      const confirmGen = confirm("Vuoi generare i gironi per questo torneo?");
-      if (!confirmGen) return;
-
-      try {
-        const res = await fetch(
-          `http://localhost:5001/api/tournaments/${selectedTournament}/generate-structure`,
-          { method: "POST" }
-        );
-        const data = await res.json();
-        if (!res.ok) throw new Error(data.error || "Errore durante la generazione");
-        alert("Gironi generati con successo!");
-        console.log("✅ Struttura generata:", data);
-
-        queryClient.invalidateQueries({ queryKey: ["matches", selectedTournament] });
-        queryClient.invalidateQueries({ queryKey: ["rankings", selectedTournament] });
-        queryClient.invalidateQueries({ queryKey: ["structure", selectedTournament] });
-      } catch (err) {
-        console.error("❌ Errore generazione gironi:", err);
-        alert("Errore durante la generazione dei gironi");
-      }
-    }}
-    className="mb-4 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition"
-  >
-    Genera Gironi
-  </button>
-)}
-
-
-      <MatchList
-        matches={enrichedMatches.map(match => ({
-          id: match.id,
-          teamAName: match.teamAName || "Team A",
-          teamBName: match.teamBName || "Team B",
-          scoreA: match.scoreA,
-          scoreB: match.scoreB,
-          status: match.status as any,
-          matchDate: match.matchDate,
-          onClick: match.onClick,
-          onEdit: () => {
-            if (!match.teamAId || !match.teamBId) return;
-            setEditingMatch(match);
-            setScoreAInput(match.scoreA ?? 0);
-            setScoreBInput(match.scoreB ?? 0);
-            setStatusInput(match.status);
-          },
-        }))}
-      />
-    </section>
-
-    {/* --- SEZIONE RANKING GENERALE --- */}
-   {/* --- SEZIONE CLASSIFICHE --- */}
-{activeTournament?.type === "league" && rankings.length > 0 && (
-  <section className="mt-12">
-    <h2 className="text-3xl font-bold mb-6">Overall Rankings</h2>
-    <RankingsTable rankings={rankings} />
-  </section>
-)}
-
-{activeTournament?.type === "groupKnockout" && groupsForRanking?.length > 0 && (
-  <section className="mt-12">
-    <h2 className="text-3xl font-bold mb-6">Group Rankings</h2>
-    {groupsForRanking.map((group: GroupRanking) => (
-      <div key={group.name} className="mb-8">
-        <h3 className="text-2xl font-semibold mb-4">{group.name}</h3>
-        <RankingsTable rankings={group.rankings} />
-      </div>
-    ))}
-  </section>
-)}
-
-
-
-    {/* --- SEZIONE TOP SCORERS --- */}
-    {topScorers.length > 0 && (
-      <section className="mt-12">
-        <h2 className="text-3xl font-bold mb-6">Top Scorers</h2>
-        <TopScorersLeaderboard scorers={topScorers} />
-      </section>
-    )}
-  </>
-)}
-
-
-        {/* MODAL */}
-        {editingMatch && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 animate-in fade-in duration-200">
-            <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-2xl p-6 w-full max-w-xl max-h-[95vh] overflow-y-auto animate-in slide-in-from-bottom duration-300">
-              <MatchEditForm
-                match={{
-                  id: editingMatch.id,
-                  teamAId: editingMatch.teamAId,
-                  teamBId: editingMatch.teamBId,  
-                  teamAName: editingMatch.teamAName || "Team A",
-                  teamBName: editingMatch.teamBName || "Team B",
-                  scoreA: scoreAInput,
-                  scoreB: scoreBInput,
-                  status: statusInput,
-                  matchDate: editingMatch.matchDate,
-                  scorersA,
-                  scorersB,
-                }}
-
-                onSave={async updated => {
-                  await fetch(`http://localhost:5001/api/matches/${editingMatch.id}`, {
-                    method: "PUT",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({
-                      scoreTeam1: updated.scoreA,
-                      scoreTeam2: updated.scoreB,
-                      status: updated.status,
-                      match_date: updated.matchDate,
-                      scorersA: updated.scorersA,
-                      scorersB: updated.scorersB,
-                    }),
-                  });
-                  queryClient.invalidateQueries({ queryKey: ["matches", selectedTournament] });
-                  setEditingMatch(null);
-                }}
-                onClose={() => setEditingMatch(null)}
-              />
-            </div>
-          </div>
-        )}
       </div>
     </div>
   );

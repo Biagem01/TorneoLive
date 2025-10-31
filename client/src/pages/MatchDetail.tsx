@@ -2,9 +2,12 @@ import { useEffect, useState } from "react";
 import { useRoute } from "wouter";
 import Header from "@/components/Header";
 import RankingsTable from "@/components/RankingsTable";
+import TopScorersLeaderboard from "@/components/TopScorersLeaderboard";
 import type { Match } from "@shared/schema";
-import { Clock, MapPin, Trophy, TrendingUp, Calendar } from "lucide-react";
+import { Clock, Calendar, TrendingUp, Target } from "lucide-react";
 import { format } from "date-fns";
+import { Card, CardContent } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
 
 interface GoalScorer {
   playerName: string;
@@ -24,6 +27,12 @@ interface TeamRanking {
   points: number;
 }
 
+interface TopScorer {
+  playerName: string;
+  teamName: string;
+  goals: number;
+}
+
 export default function MatchDetail() {
   const [match, setMatch] = useState<
     (Match & {
@@ -35,6 +44,7 @@ export default function MatchDetail() {
     }) | null
   >(null);
   const [rankings, setRankings] = useState<TeamRanking[]>([]);
+  const [topScorers, setTopScorers] = useState<TopScorer[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -81,302 +91,233 @@ export default function MatchDetail() {
       }
     }
 
+    async function fetchTopScorers() {
+      try {
+        const res = await fetch(`/api/tournaments/${match!.tournamentId}/top-scorers`);
+        if (!res.ok) throw new Error("Failed to fetch top scorers");
+        const data = await res.json();
+        setTopScorers(data);
+      } catch (err) {
+        console.error(err);
+      }
+    }
+
     fetchRankings();
+    fetchTopScorers();
   }, [match?.tournamentId]);
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 dark:from-slate-950 dark:via-blue-950 dark:to-indigo-950 flex items-center justify-center">
-        <div className="text-center space-y-4">
-          <div className="w-16 h-16 border-4 border-blue-500 border-t-transparent rounded-full animate-spin mx-auto"></div>
-          <p className="text-lg font-display font-semibold text-slate-700 dark:text-slate-300">Loading match...</p>
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="text-center space-y-3">
+          <div className="w-12 h-12 border-3 border-primary border-t-transparent rounded-full animate-spin mx-auto"></div>
+          <p className="text-sm font-medium text-muted-foreground">Loading match...</p>
         </div>
       </div>
     );
   }
 
-  if (error) {
+  if (error || !match) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 dark:from-slate-950 dark:via-blue-950 dark:to-indigo-950 flex items-center justify-center">
+      <div className="min-h-screen bg-background flex items-center justify-center">
         <div className="text-center max-w-md mx-auto px-4">
-          <div className="w-20 h-20 mx-auto mb-4 rounded-full bg-red-100 dark:bg-red-900/20 flex items-center justify-center">
-            <Trophy className="w-10 h-10 text-red-600 dark:text-red-400" />
-          </div>
-          <p className="text-xl font-display font-semibold text-red-600 dark:text-red-400">{error}</p>
+          <p className="text-lg font-semibold text-destructive">{error || "Match not found"}</p>
         </div>
       </div>
     );
   }
 
-  if (!match) {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 dark:from-slate-950 dark:via-blue-950 dark:to-indigo-950 flex items-center justify-center">
-        <div className="text-center max-w-md mx-auto px-4">
-          <div className="w-20 h-20 mx-auto mb-4 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center">
-            <Trophy className="w-10 h-10 text-slate-600 dark:text-slate-400" />
-          </div>
-          <p className="text-xl font-display font-semibold text-slate-700 dark:text-slate-300">Match not found</p>
-        </div>
-      </div>
-    );
-  }
-
-  const statusColors = {
-    scheduled: "bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-300",
-    live: "bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300 animate-pulse",
-    finished: "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300",
+  const statusConfig = {
+    scheduled: { variant: "secondary" as const, label: "Scheduled" },
+    live: { variant: "destructive" as const, label: "Live" },
+    finished: { variant: "default" as const, label: "Finished" },
   };
 
-  const statusColor = statusColors[match.status as keyof typeof statusColors] || statusColors.scheduled;
+  const status = statusConfig[match.status as keyof typeof statusConfig] || statusConfig.scheduled;
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 dark:from-slate-950 dark:via-blue-950 dark:to-indigo-950">
+    <div className="min-h-screen bg-background">
       <Header />
 
-      <div className="max-w-7xl mx-auto px-4 py-8 sm:py-12 space-y-8">
-        {/* Status Badge */}
-        <div className="flex justify-center animate-fadeIn">
-          <span className={`inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-semibold font-display uppercase tracking-wider ${statusColor}`}>
-            {match.status === 'live' && <span className="w-2 h-2 bg-red-500 rounded-full"></span>}
-            {match.status}
-          </span>
-        </div>
-
-        {/* Match Header - Teams vs Teams */}
-        <div className="text-center space-y-4 animate-slideDown">
-          <h1 className="text-4xl sm:text-5xl lg:text-6xl font-display font-bold bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 dark:from-blue-400 dark:via-indigo-400 dark:to-purple-400 bg-clip-text text-transparent leading-tight">
-            {match.teamAName} <span className="text-slate-400 dark:text-slate-600">vs</span> {match.teamBName}
+      <div className="max-w-5xl mx-auto px-4 py-6 sm:py-8 space-y-6">
+        {/* Match Header */}
+        <div className="text-center space-y-3">
+          <Badge variant={status.variant} className="uppercase tracking-wide" data-testid="badge-match-status">
+            {match.status === 'live' && <span className="w-1.5 h-1.5 bg-current rounded-full mr-1.5 animate-pulse"></span>}
+            {status.label}
+          </Badge>
+          
+          <h1 className="text-4xl sm:text-5xl md:text-6xl font-display font-bold text-foreground tracking-tight uppercase" data-testid="text-match-title">
+            {match.teamAName} <span className="text-muted-foreground font-sans normal-case font-normal text-2xl sm:text-3xl md:text-4xl">vs</span> {match.teamBName}
           </h1>
+
+          <div className="flex flex-wrap items-center justify-center gap-4 text-sm text-muted-foreground">
+            <div className="flex items-center gap-1.5" data-testid="text-match-date">
+              <Calendar className="w-4 h-4" />
+              <span>{format(new Date(match.matchDate), "PPP")}</span>
+            </div>
+            <div className="flex items-center gap-1.5" data-testid="text-match-time">
+              <Clock className="w-4 h-4" />
+              <span>{format(new Date(match.matchDate), "p")}</span>
+            </div>
+          </div>
         </div>
 
-        {/* Score Card - Main Feature */}
-        <div className="relative animate-scaleIn">
-          <div className="absolute inset-0 bg-gradient-to-r from-blue-500 via-indigo-500 to-purple-500 rounded-3xl blur-xl opacity-20"></div>
-          <div className="relative bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl border-2 border-blue-200 dark:border-blue-800 rounded-3xl shadow-2xl overflow-hidden">
-            {/* Decorative Background Pattern */}
-            <div className="absolute inset-0 opacity-5">
-              <div className="absolute top-0 left-0 w-64 h-64 bg-blue-500 rounded-full blur-3xl"></div>
-              <div className="absolute bottom-0 right-0 w-64 h-64 bg-purple-500 rounded-full blur-3xl"></div>
-            </div>
-            
-            <div className="relative grid grid-cols-3 gap-4 p-8 sm:p-12">
+        {/* Score Card */}
+        <Card className="overflow-hidden" data-testid="card-match-score">
+          <CardContent className="p-6 sm:p-8">
+            <div className="grid grid-cols-3 gap-4 items-center">
               {/* Team A */}
-              <div className="text-center space-y-4">
-                <div className="w-20 h-20 sm:w-28 sm:h-28 mx-auto bg-gradient-to-br from-blue-500 to-blue-600 rounded-2xl flex items-center justify-center shadow-xl transition-all duration-300">
-                  <span className="text-3xl sm:text-5xl font-display font-bold text-white">
+              <div className="text-center space-y-2">
+                <div className="w-16 h-16 sm:w-20 sm:h-20 mx-auto bg-primary/10 rounded-lg flex items-center justify-center" data-testid="team-a-avatar">
+                  <span className="text-2xl sm:text-3xl font-display font-bold text-primary uppercase">
                     {match.teamAName?.charAt(0) || 'A'}
                   </span>
                 </div>
-                <h2 className="text-xl sm:text-2xl font-display font-bold text-slate-800 dark:text-slate-100">
+                <p className="text-sm sm:text-base font-serif font-bold text-foreground" data-testid="text-team-a-name">
                   {match.teamAName}
-                </h2>
+                </p>
               </div>
 
               {/* Score */}
-              <div className="flex flex-col items-center justify-center space-y-4">
-                <div className="bg-gradient-to-br from-slate-100 to-slate-200 dark:from-slate-800 dark:to-slate-700 rounded-2xl px-6 sm:px-10 py-4 sm:py-6 shadow-inner">
-                  <div className="flex items-center gap-3 sm:gap-6">
-                    <span className="text-5xl sm:text-7xl font-display font-extrabold bg-gradient-to-br from-blue-600 to-indigo-600 dark:from-blue-400 dark:to-indigo-400 bg-clip-text text-transparent">
-                      {match.scoreA ?? "0"}
-                    </span>
-                    <span className="text-3xl sm:text-5xl font-bold text-slate-400 dark:text-slate-600">:</span>
-                    <span className="text-5xl sm:text-7xl font-display font-extrabold bg-gradient-to-br from-purple-600 to-pink-600 dark:from-purple-400 dark:to-pink-400 bg-clip-text text-transparent">
-                      {match.scoreB ?? "0"}
-                    </span>
-                  </div>
+              <div className="text-center">
+                <div className="flex items-center justify-center gap-4">
+                  <span className="text-6xl sm:text-7xl md:text-8xl font-display font-bold text-foreground tabular-nums" data-testid="text-score-a">
+                    {match.scoreA ?? "0"}
+                  </span>
+                  <span className="text-3xl sm:text-4xl font-bold text-muted-foreground">-</span>
+                  <span className="text-6xl sm:text-7xl md:text-8xl font-display font-bold text-foreground tabular-nums" data-testid="text-score-b">
+                    {match.scoreB ?? "0"}
+                  </span>
                 </div>
-                <Trophy className="w-6 h-6 text-amber-500" />
               </div>
 
               {/* Team B */}
-              <div className="text-center space-y-4">
-                <div className="w-20 h-20 sm:w-28 sm:h-28 mx-auto bg-gradient-to-br from-purple-500 to-pink-500 rounded-2xl flex items-center justify-center shadow-xl transition-all duration-300">
-                  <span className="text-3xl sm:text-5xl font-display font-bold text-white">
+              <div className="text-center space-y-2">
+                <div className="w-16 h-16 sm:w-20 sm:h-20 mx-auto bg-primary/10 rounded-lg flex items-center justify-center" data-testid="team-b-avatar">
+                  <span className="text-2xl sm:text-3xl font-display font-bold text-primary uppercase">
                     {match.teamBName?.charAt(0) || 'B'}
                   </span>
                 </div>
-                <h2 className="text-xl sm:text-2xl font-display font-bold text-slate-800 dark:text-slate-100">
+                <p className="text-sm sm:text-base font-serif font-bold text-foreground" data-testid="text-team-b-name">
                   {match.teamBName}
-                </h2>
+                </p>
               </div>
             </div>
-          </div>
-        </div>
-
-        {/* Match Info */}
-        <div className="flex flex-wrap justify-center gap-4 sm:gap-6 text-sm sm:text-base animate-fadeIn">
-          <div className="flex items-center gap-2 px-4 py-2 bg-white/60 dark:bg-slate-900/60 backdrop-blur-sm rounded-xl shadow-lg">
-            <Calendar className="w-5 h-5 text-blue-600 dark:text-blue-400" />
-            <span className="font-medium text-slate-700 dark:text-slate-300">
-              {format(new Date(match.matchDate), "PPP")}
-            </span>
-          </div>
-          <div className="flex items-center gap-2 px-4 py-2 bg-white/60 dark:bg-slate-900/60 backdrop-blur-sm rounded-xl shadow-lg">
-            <Clock className="w-5 h-5 text-indigo-600 dark:text-indigo-400" />
-            <span className="font-medium text-slate-700 dark:text-slate-300">
-              {format(new Date(match.matchDate), "p")}
-            </span>
-          </div>
-        </div>
+          </CardContent>
+        </Card>
 
         {/* Goal Scorers */}
         {((match.goalScorersA && match.goalScorersA.length > 0) ||
           (match.goalScorersB && match.goalScorersB.length > 0)) && (
-          <div className="space-y-6 animate-slideUp">
-            <h2 className="text-3xl font-display font-bold text-center bg-gradient-to-r from-slate-700 to-slate-900 dark:from-slate-200 dark:to-slate-400 bg-clip-text text-transparent">
-              Goal Scorers
-            </h2>
+          <div className="space-y-4" data-testid="section-goal-scorers">
+            <h2 className="text-2xl sm:text-3xl font-display font-bold text-foreground uppercase tracking-wide">Goal Scorers</h2>
             
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               {/* Team A Goals */}
-              <div className="group">
-                <div className="bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-blue-950/50 dark:to-indigo-950/50 backdrop-blur-sm border-2 border-blue-200 dark:border-blue-800 rounded-2xl p-6 shadow-xl transition-all duration-300">
-                  <div className="flex items-center gap-3 mb-6">
-                    <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl flex items-center justify-center shadow-lg">
-                      <span className="text-xl font-display font-bold text-white">{match.teamAName?.charAt(0)}</span>
+              <Card data-testid="card-goals-team-a">
+                <CardContent className="p-4">
+                  <div className="flex items-center gap-2 mb-3">
+                    <div className="w-8 h-8 bg-primary/10 rounded-md flex items-center justify-center">
+                      <span className="text-sm font-display font-bold text-primary uppercase">{match.teamAName?.charAt(0)}</span>
                     </div>
-                    <h3 className="text-xl font-display font-bold text-blue-900 dark:text-blue-100">
+                    <h3 className="text-base font-serif font-bold text-foreground">
                       {match.teamAName}
                     </h3>
                   </div>
                   
                   {match.goalScorersA && match.goalScorersA.length > 0 ? (
-                    <div className="space-y-3">
+                    <div className="space-y-2">
                       {match.goalScorersA.map((g, idx) => (
                         <div
                           key={idx}
-                          className="flex items-center justify-between px-4 py-3 bg-white/70 dark:bg-slate-900/70 backdrop-blur-sm rounded-xl hover:bg-blue-100 dark:hover:bg-blue-900/50 transition-all duration-200 group/item shadow-md"
+                          className="flex items-center justify-between py-2 border-b last:border-0"
+                          data-testid={`goal-scorer-a-${idx}`}
                         >
-                          <span className="font-semibold text-slate-800 dark:text-slate-200 group-hover/item:text-blue-600 dark:group-hover/item:text-blue-400 transition-colors">
+                          <span className="text-sm font-medium text-foreground">
                             {g.playerName}
                           </span>
-                          <span className="text-sm font-bold px-3 py-1 bg-blue-500 text-white rounded-full shadow-sm">
+                          <Badge variant="secondary" className="text-xs">
                             {g.minute}'
-                          </span>
+                          </Badge>
                         </div>
                       ))}
                     </div>
                   ) : (
-                    <p className="text-slate-500 dark:text-slate-400 text-center py-4 italic">No goals scored</p>
+                    <p className="text-sm text-muted-foreground text-center py-2">No goals</p>
                   )}
-                </div>
-              </div>
+                </CardContent>
+              </Card>
 
               {/* Team B Goals */}
-              <div className="group">
-                <div className="bg-gradient-to-br from-purple-50 to-pink-50 dark:from-purple-950/50 dark:to-pink-950/50 backdrop-blur-sm border-2 border-purple-200 dark:border-purple-800 rounded-2xl p-6 shadow-xl transition-all duration-300">
-                  <div className="flex items-center gap-3 mb-6">
-                    <div className="w-12 h-12 bg-gradient-to-br from-purple-500 to-pink-500 rounded-xl flex items-center justify-center shadow-lg">
-                      <span className="text-xl font-display font-bold text-white">{match.teamBName?.charAt(0)}</span>
+              <Card data-testid="card-goals-team-b">
+                <CardContent className="p-4">
+                  <div className="flex items-center gap-2 mb-3">
+                    <div className="w-8 h-8 bg-primary/10 rounded-md flex items-center justify-center">
+                      <span className="text-sm font-display font-bold text-primary uppercase">{match.teamBName?.charAt(0)}</span>
                     </div>
-                    <h3 className="text-xl font-display font-bold text-purple-900 dark:text-purple-100">
+                    <h3 className="text-base font-serif font-bold text-foreground">
                       {match.teamBName}
                     </h3>
                   </div>
                   
                   {match.goalScorersB && match.goalScorersB.length > 0 ? (
-                    <div className="space-y-3">
+                    <div className="space-y-2">
                       {match.goalScorersB.map((g, idx) => (
                         <div
                           key={idx}
-                          className="flex items-center justify-between px-4 py-3 bg-white/70 dark:bg-slate-900/70 backdrop-blur-sm rounded-xl hover:bg-purple-100 dark:hover:bg-purple-900/50 transition-all duration-200 group/item shadow-md"
+                          className="flex items-center justify-between py-2 border-b last:border-0"
+                          data-testid={`goal-scorer-b-${idx}`}
                         >
-                          <span className="font-semibold text-slate-800 dark:text-slate-200 group-hover/item:text-purple-600 dark:group-hover/item:text-purple-400 transition-colors">
+                          <span className="text-sm font-medium text-foreground">
                             {g.playerName}
                           </span>
-                          <span className="text-sm font-bold px-3 py-1 bg-purple-500 text-white rounded-full shadow-sm">
+                          <Badge variant="secondary" className="text-xs">
                             {g.minute}'
-                          </span>
+                          </Badge>
                         </div>
                       ))}
                     </div>
                   ) : (
-                    <p className="text-slate-500 dark:text-slate-400 text-center py-4 italic">No goals scored</p>
+                    <p className="text-sm text-muted-foreground text-center py-2">No goals</p>
                   )}
-                </div>
-              </div>
+                </CardContent>
+              </Card>
             </div>
           </div>
         )}
 
         {/* Tournament Standings */}
         {rankings.length > 0 && (
-          <div className="space-y-6 animate-slideUp">
-            <div className="text-center space-y-2">
-              <div className="flex items-center justify-center gap-3">
-                <TrendingUp className="w-8 h-8 text-amber-500" />
-                <h2 className="text-3xl font-display font-bold bg-gradient-to-r from-slate-700 to-slate-900 dark:from-slate-200 dark:to-slate-400 bg-clip-text text-transparent">
-                  Tournament Standings
-                </h2>
-              </div>
-              <p className="text-slate-600 dark:text-slate-400 font-medium">Current league position</p>
+          <div className="space-y-4" data-testid="section-standings">
+            <div className="flex items-center gap-2">
+              <TrendingUp className="w-5 h-5 text-primary" />
+              <h2 className="text-2xl sm:text-3xl font-display font-bold text-foreground uppercase tracking-wide">Tournament Standings</h2>
             </div>
             
-            <div className="bg-white/60 dark:bg-slate-900/60 backdrop-blur-sm rounded-2xl shadow-2xl overflow-hidden border-2 border-slate-200 dark:border-slate-800">
-              <RankingsTable 
-                rankings={rankings} 
-                highlightTeams={[match.teamAName, match.teamBName]} 
-              />
+            <Card>
+              <CardContent className="p-0">
+                <RankingsTable 
+                  rankings={rankings} 
+                  highlightTeams={[match.teamAName, match.teamBName]} 
+                />
+              </CardContent>
+            </Card>
+          </div>
+        )}
+
+        {/* Top Scorers */}
+        {topScorers.length > 0 && (
+          <div className="space-y-4" data-testid="section-top-scorers">
+            <div className="flex items-center gap-2">
+              <Target className="w-5 h-5 text-primary" />
+              <h2 className="text-2xl sm:text-3xl font-display font-bold text-foreground uppercase tracking-wide">Top Scorers</h2>
             </div>
+            
+            <TopScorersLeaderboard scorers={topScorers} />
           </div>
         )}
       </div>
-
-      <style>{`
-        @keyframes fadeIn {
-          from { opacity: 0; }
-          to { opacity: 1; }
-        }
-        
-        @keyframes slideDown {
-          from {
-            opacity: 0;
-            transform: translateY(-20px);
-          }
-          to {
-            opacity: 1;
-            transform: translateY(0);
-          }
-        }
-        
-        @keyframes slideUp {
-          from {
-            opacity: 0;
-            transform: translateY(20px);
-          }
-          to {
-            opacity: 1;
-            transform: translateY(0);
-          }
-        }
-        
-        @keyframes scaleIn {
-          from {
-            opacity: 0;
-            transform: scale(0.95);
-          }
-          to {
-            opacity: 1;
-            transform: scale(1);
-          }
-        }
-        
-        .animate-fadeIn {
-          animation: fadeIn 0.6s ease-out;
-        }
-        
-        .animate-slideDown {
-          animation: slideDown 0.8s ease-out;
-        }
-        
-        .animate-slideUp {
-          animation: slideUp 0.8s ease-out;
-        }
-        
-        .animate-scaleIn {
-          animation: scaleIn 0.8s ease-out;
-        }
-      `}</style>
     </div>
   );
 }

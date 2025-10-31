@@ -48,16 +48,16 @@ export default function MatchList({ matches }: MatchListProps) {
         <table className="w-full">
           <thead className="bg-slate-50 dark:bg-slate-800/50 border-b border-slate-200 dark:border-slate-700">
             <tr>
-              <th className="px-6 py-3 text-left text-xs font-semibold text-slate-600 dark:text-slate-400 uppercase tracking-wider">
+              <th className="px-6 py-3 text-left text-xs font-sans font-bold text-slate-600 dark:text-slate-400 uppercase tracking-wider">
                 Data/Ora
               </th>
-              <th className="px-6 py-3 text-left text-xs font-semibold text-slate-600 dark:text-slate-400 uppercase tracking-wider">
+              <th className="px-6 py-3 text-left text-xs font-sans font-bold text-slate-600 dark:text-slate-400 uppercase tracking-wider">
                 Partita
               </th>
-              <th className="px-6 py-3 text-center text-xs font-semibold text-slate-600 dark:text-slate-400 uppercase tracking-wider">
+              <th className="px-6 py-3 text-center text-xs font-sans font-bold text-slate-600 dark:text-slate-400 uppercase tracking-wider">
                 Risultato
               </th>
-              <th className="px-6 py-3 text-center text-xs font-semibold text-slate-600 dark:text-slate-400 uppercase tracking-wider">
+              <th className="px-6 py-3 text-center text-xs font-sans font-bold text-slate-600 dark:text-slate-400 uppercase tracking-wider">
                 Stato
               </th>
               <th className="px-6 py-3"></th>
@@ -84,22 +84,22 @@ export default function MatchList({ matches }: MatchListProps) {
                   </td>
                   <td className="px-6 py-4" data-testid={`cell-match-${match.id}-teams`}>
                     <div className="flex items-center gap-3">
-                      <span className="font-semibold text-foreground min-w-[120px] text-right">
+                      <span className="font-serif font-bold text-foreground min-w-[120px] text-right">
                         {match.teamAName}
                       </span>
-                      <span className="text-muted-foreground font-medium">vs</span>
-                      <span className="font-semibold text-foreground min-w-[120px]">
+                      <span className="text-muted-foreground font-sans text-sm">vs</span>
+                      <span className="font-serif font-bold text-foreground min-w-[120px]">
                         {match.teamBName}
                       </span>
                     </div>
                   </td>
                   <td className="px-6 py-4" data-testid={`cell-match-${match.id}-score`}>
-                    <div className="flex items-center justify-center gap-2">
-                      <span className={`text-2xl font-bold font-mono ${match.scoreA !== null ? "text-foreground" : "text-muted-foreground"}`}>
+                    <div className="flex items-center justify-center gap-3">
+                      <span className={`text-3xl font-display font-bold tabular-nums ${match.scoreA !== null ? "text-foreground" : "text-muted-foreground"}`}>
                         {match.scoreA ?? "-"}
                       </span>
-                      <span className="text-xl font-bold text-muted-foreground">:</span>
-                      <span className={`text-2xl font-bold font-mono ${match.scoreB !== null ? "text-foreground" : "text-muted-foreground"}`}>
+                      <span className="text-xl font-bold text-muted-foreground">-</span>
+                      <span className={`text-3xl font-display font-bold tabular-nums ${match.scoreB !== null ? "text-foreground" : "text-muted-foreground"}`}>
                         {match.scoreB ?? "-"}
                       </span>
                     </div>
@@ -111,7 +111,7 @@ export default function MatchList({ matches }: MatchListProps) {
                   </td>
                   <td className="px-6 py-4 text-right" data-testid={`cell-match-${match.id}-actions`}>
                     <div className="flex items-center justify-end gap-2">
-                      {match.status === "live" && user?.role === "admin" && match.onEdit && (
+                      {match.status === "live" || match.status === "scheduled" && user?.role === "admin" && match.onEdit && (
                         <Button
                           size="sm"
                           variant="secondary"

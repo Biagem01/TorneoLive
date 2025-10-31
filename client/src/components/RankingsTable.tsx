@@ -32,34 +32,34 @@ export default function RankingsTable({ rankings, highlightTeams = [] }: Ranking
         <table className="w-full">
           <thead className="bg-muted/50 border-b border-border">
             <tr>
-              <th className="px-4 py-3 text-left text-xs font-semibold text-muted-foreground uppercase tracking-wider w-16">
+              <th className="px-4 py-3 text-left text-xs font-sans font-bold text-muted-foreground uppercase tracking-wider w-16">
                 #
               </th>
-              <th className="px-4 py-3 text-left text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+              <th className="px-4 py-3 text-left text-xs font-sans font-bold text-muted-foreground uppercase tracking-wider">
                 Squadra
               </th>
-              <th className="px-4 py-3 text-center text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+              <th className="px-4 py-3 text-center text-xs font-sans font-bold text-muted-foreground uppercase tracking-wider">
                 G
               </th>
-              <th className="px-4 py-3 text-center text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+              <th className="px-4 py-3 text-center text-xs font-sans font-bold text-muted-foreground uppercase tracking-wider">
                 V
               </th>
-              <th className="px-4 py-3 text-center text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+              <th className="px-4 py-3 text-center text-xs font-sans font-bold text-muted-foreground uppercase tracking-wider">
                 P
               </th>
-              <th className="px-4 py-3 text-center text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+              <th className="px-4 py-3 text-center text-xs font-sans font-bold text-muted-foreground uppercase tracking-wider">
                 S
               </th>
-              <th className="px-4 py-3 text-center text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+              <th className="px-4 py-3 text-center text-xs font-sans font-bold text-muted-foreground uppercase tracking-wider">
                 GF
               </th>
-              <th className="px-4 py-3 text-center text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+              <th className="px-4 py-3 text-center text-xs font-sans font-bold text-muted-foreground uppercase tracking-wider">
                 GS
               </th>
-              <th className="px-4 py-3 text-center text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+              <th className="px-4 py-3 text-center text-xs font-sans font-bold text-muted-foreground uppercase tracking-wider">
                 DR
               </th>
-              <th className="px-4 py-3 text-center text-xs font-semibold text-foreground uppercase tracking-wider">
+              <th className="px-4 py-3 text-center text-xs font-sans font-bold text-foreground uppercase tracking-wider">
                 Pti
               </th>
             </tr>
@@ -79,7 +79,7 @@ export default function RankingsTable({ rankings, highlightTeams = [] }: Ranking
                 >
                   <td className="px-4 py-3" data-testid={`cell-position-${team.position}`}>
                     <div
-                      className={`w-8 h-8 rounded-md ${getPositionStyle(team.position)} flex items-center justify-center font-bold text-sm`}
+                      className={`w-8 h-8 rounded-md ${getPositionStyle(team.position)} flex items-center justify-center font-display font-bold text-sm`}
                     >
                       {team.position}
                     </div>
@@ -89,28 +89,28 @@ export default function RankingsTable({ rankings, highlightTeams = [] }: Ranking
                       {isTopThree && (
                         <TrendingUp className="w-4 h-4 text-emerald-500" />
                       )}
-                      <span className="font-semibold text-foreground">{team.teamName}</span>
+                      <span className="font-serif font-bold text-foreground">{team.teamName}</span>
                     </div>
                   </td>
-                  <td className="px-4 py-3 text-center font-mono text-sm text-muted-foreground" data-testid={`cell-played-${team.position}`}>
+                  <td className="px-4 py-3 text-center font-sans text-sm text-muted-foreground tabular-nums" data-testid={`cell-played-${team.position}`}>
                     {team.played}
                   </td>
-                  <td className="px-4 py-3 text-center font-mono text-sm font-semibold text-emerald-600 dark:text-emerald-400" data-testid={`cell-won-${team.position}`}>
+                  <td className="px-4 py-3 text-center font-sans text-sm font-semibold text-emerald-600 dark:text-emerald-400 tabular-nums" data-testid={`cell-won-${team.position}`}>
                     {team.won}
                   </td>
-                  <td className="px-4 py-3 text-center font-mono text-sm text-muted-foreground" data-testid={`cell-drawn-${team.position}`}>
+                  <td className="px-4 py-3 text-center font-sans text-sm text-muted-foreground tabular-nums" data-testid={`cell-drawn-${team.position}`}>
                     {team.drawn}
                   </td>
-                  <td className="px-4 py-3 text-center font-mono text-sm font-semibold text-red-600 dark:text-red-400" data-testid={`cell-lost-${team.position}`}>
+                  <td className="px-4 py-3 text-center font-sans text-sm font-semibold text-red-600 dark:text-red-400 tabular-nums" data-testid={`cell-lost-${team.position}`}>
                     {team.lost}
                   </td>
-                  <td className="px-4 py-3 text-center font-mono text-sm text-muted-foreground" data-testid={`cell-gf-${team.position}`}>
+                  <td className="px-4 py-3 text-center font-sans text-sm text-muted-foreground tabular-nums" data-testid={`cell-gf-${team.position}`}>
                     {team.goalsFor}
                   </td>
-                  <td className="px-4 py-3 text-center font-mono text-sm text-muted-foreground" data-testid={`cell-ga-${team.position}`}>
+                  <td className="px-4 py-3 text-center font-sans text-sm text-muted-foreground tabular-nums" data-testid={`cell-ga-${team.position}`}>
                     {team.goalsAgainst}
                   </td>
-                  <td className={`px-4 py-3 text-center font-mono text-sm font-semibold ${
+                  <td className={`px-4 py-3 text-center font-sans text-sm font-semibold tabular-nums ${
                     team.goalDifference > 0 
                       ? 'text-emerald-600 dark:text-emerald-400' 
                       : team.goalDifference < 0 
@@ -120,7 +120,7 @@ export default function RankingsTable({ rankings, highlightTeams = [] }: Ranking
                     {team.goalDifference > 0 ? `+${team.goalDifference}` : team.goalDifference}
                   </td>
                   <td className="px-4 py-3 text-center" data-testid={`cell-points-${team.position}`}>
-                    <span className="inline-flex items-center justify-center px-3 py-1 rounded-md bg-primary text-primary-foreground font-bold text-base">
+                    <span className="inline-flex items-center justify-center px-3 py-1 rounded-md bg-primary text-primary-foreground font-display font-bold text-lg tabular-nums">
                       {team.points}
                     </span>
                   </td>

@@ -175,6 +175,7 @@ class MatchController {
             );
           }
         }
+        
       };
 
       await insertGoalsIfNew(scorersA, match.team1_id);
@@ -186,6 +187,57 @@ class MatchController {
       res.status(500).json({ error: "Failed to update match" });
     }
   }
+
+  static async recalculateStandings(tournamentId) {
+  try {
+    // 1️⃣ Prendiamo tutte le partite finali di quel torneo
+    const [matches] = await pool.execute(
+      `SELECT * FROM matches WHERE tournament_id = ? AND status = 'final'`,
+      [tournamentId]
+    );
+
+    // 2️⃣ Reset dei punti per tutte le squadre del torneo
+    await pool.execute(
+      `UPDATE teams SET wins = 0, draws = 0, losses = 0, points = 0 WHERE tournament_id = ?`,
+      [tournamentId]
+    );
+
+    // 3️⃣ Ricalcolo manuale
+    for (const m of matches) {
+      if (m.score_team1 > m.score_team2) {
+        await pool.execute(
+          `UPDATE teams SET wins = wins + 1, points = points + 3 WHERE id = ?`,
+          [m.team1_id]
+        );
+        await pool.execute(
+          `UPDATE teams SET losses = losses + 1 WHERE id = ?`,
+          [m.team2_id]
+        );
+      } else if (m.score_team1 < m.score_team2) {
+        await pool.execute(
+          `UPDATE teams SET wins = wins + 1, points = points + 3 WHERE id = ?`,
+          [m.team2_id]
+        );
+        await pool.execute(
+          `UPDATE teams SET losses = losses + 1 WHERE id = ?`,
+          [m.team1_id]
+        );
+      } else {
+        await pool.execute(
+          `UPDATE teams SET draws = draws + 1, points = points + 1 WHERE id IN (?, ?)`,
+          [m.team1_id, m.team2_id]
+        );
+      }
+    }
+
+    console.log("✅ Classifica ricalcolata per il torneo", tournamentId);
+  } catch (error) {
+    console.error("❌ Errore nel ricalcolo classifica:", error);
+  }
 }
+
+}
+
+
 
 export default MatchController;

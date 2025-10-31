@@ -10,17 +10,19 @@ import HomeReal from "@/pages/HomeReal";
 import Admin from "@/pages/Admin";
 import Auth from "@/pages/Auth";
 import MatchDetail from "@/pages/MatchDetail";
+import TournamentDetail from "@/pages/TournamentDetail";
 import NotFound from "@/pages/not-found";
-import VerifyPage from "@/pages/VerifyPage"; // ✅ importa la pagina di verifica
+import VerifyPage from "@/pages/VerifyPage";
 
 function Router() {
   return (
     <Switch>
       <ProtectedRoute path="/" component={HomeReal} />
       <ProtectedRoute path="/admin" component={Admin} requireAdmin={true} />
+      <ProtectedRoute path="/tournaments/:id" component={TournamentDetail} />
       <ProtectedRoute path="/matches/:id" component={MatchDetail} />
       <Route path="/auth" component={Auth} />
-      <Route path="/verify" component={VerifyPage} /> {/* ✅ nuova rotta */}
+      <Route path="/verify" component={VerifyPage} />
       <Route component={NotFound} />
     </Switch>
   );

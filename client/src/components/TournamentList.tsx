@@ -43,19 +43,19 @@ export default function TournamentList({ tournaments, onSelectTournament }: Tour
         <table className="w-full">
           <thead className="bg-slate-50 dark:bg-slate-800/50 border-b border-slate-200 dark:border-slate-700">
             <tr>
-              <th className="px-6 py-3 text-left text-xs font-semibold text-slate-600 dark:text-slate-400 uppercase tracking-wider">
+              <th className="px-6 py-3 text-left text-xs font-sans font-bold text-slate-600 dark:text-slate-400 uppercase tracking-wider">
                 Torneo
               </th>
-              <th className="px-6 py-3 text-left text-xs font-semibold text-slate-600 dark:text-slate-400 uppercase tracking-wider">
+              <th className="px-6 py-3 text-left text-xs font-sans font-bold text-slate-600 dark:text-slate-400 uppercase tracking-wider">
                 Stato
               </th>
-              <th className="px-6 py-3 text-left text-xs font-semibold text-slate-600 dark:text-slate-400 uppercase tracking-wider">
+              <th className="px-6 py-3 text-left text-xs font-sans font-bold text-slate-600 dark:text-slate-400 uppercase tracking-wider">
                 Date
               </th>
-              <th className="px-6 py-3 text-center text-xs font-semibold text-slate-600 dark:text-slate-400 uppercase tracking-wider">
+              <th className="px-6 py-3 text-center text-xs font-sans font-bold text-slate-600 dark:text-slate-400 uppercase tracking-wider">
                 Squadre
               </th>
-              <th className="px-6 py-3 text-center text-xs font-semibold text-slate-600 dark:text-slate-400 uppercase tracking-wider">
+              <th className="px-6 py-3 text-center text-xs font-sans font-bold text-slate-600 dark:text-slate-400 uppercase tracking-wider">
                 Partite
               </th>
               <th className="px-6 py-3"></th>
@@ -77,7 +77,7 @@ export default function TournamentList({ tournaments, onSelectTournament }: Tour
                         <Trophy className="w-5 h-5 text-white" />
                       </div>
                       <div>
-                        <div className="font-semibold text-foreground group-hover:text-emerald-600 dark:group-hover:text-emerald-400 transition-colors">
+                        <div className="font-display text-lg font-bold text-foreground uppercase tracking-wide group-hover:text-emerald-600 dark:group-hover:text-emerald-400 transition-colors">
                           {tournament.name}
                         </div>
                       </div>
@@ -99,11 +99,11 @@ export default function TournamentList({ tournaments, onSelectTournament }: Tour
                   <td className="px-6 py-4 text-center" data-testid={`cell-tournament-${tournament.id}-teams`}>
                     <div className="flex items-center justify-center gap-2">
                       <Users className="w-4 h-4 text-blue-500" />
-                      <span className="font-semibold text-foreground">{tournament.teamCount}</span>
+                      <span className="font-display text-lg font-bold text-foreground tabular-nums">{tournament.teamCount}</span>
                     </div>
                   </td>
                   <td className="px-6 py-4 text-center" data-testid={`cell-tournament-${tournament.id}-matches`}>
-                    <span className="font-semibold text-foreground">{tournament.matchCount}</span>
+                    <span className="font-display text-lg font-bold text-foreground tabular-nums">{tournament.matchCount}</span>
                   </td>
                   <td className="px-6 py-4 text-right" data-testid={`cell-tournament-${tournament.id}-action`}>
                     <ChevronRight className="w-5 h-5 text-muted-foreground group-hover:text-emerald-500 transition-colors" />

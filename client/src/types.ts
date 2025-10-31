@@ -15,6 +15,7 @@ export interface MatchWithScorers {
   id: string;
   teamAName: string;
   teamBName: string;
+  
   teamAId: string; // ← aggiungi
   teamBId: string; // ← aggiungi
   scoreA: number;
