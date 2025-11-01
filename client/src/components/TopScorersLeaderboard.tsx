@@ -1,4 +1,4 @@
-import { Target, Trophy, Medal, Award } from "lucide-react";
+import { Target, Trophy } from "lucide-react";
 
 interface TopScorer {
   playerName: string;
@@ -11,73 +11,84 @@ interface TopScorersLeaderboardProps {
 }
 
 export default function TopScorersLeaderboard({ scorers }: TopScorersLeaderboardProps) {
-  const getPositionStyle = (position: number) => {
-    if (position === 1) return { bg: "bg-yellow-500", text: "text-white", icon: Trophy };
-    if (position === 2) return { bg: "bg-slate-400", text: "text-white", icon: Award };
-    if (position === 3) return { bg: "bg-amber-600", text: "text-white", icon: Medal };
-    return { bg: "bg-muted", text: "text-muted-foreground", icon: null };
-  };
-
   return (
-    <div className="bg-card rounded-lg border border-border overflow-hidden" data-testid="card-top-scorers">
-      <div className="overflow-x-auto">
-        <table className="w-full">
-          <thead className="bg-muted/50 border-b border-border">
-            <tr>
-              <th className="px-4 py-3 text-left text-xs font-sans font-bold text-muted-foreground uppercase tracking-wider w-16">
-                #
-              </th>
-              <th className="px-4 py-3 text-left text-xs font-sans font-bold text-muted-foreground uppercase tracking-wider">
-                Giocatore
-              </th>
-              <th className="px-4 py-3 text-left text-xs font-sans font-bold text-muted-foreground uppercase tracking-wider">
-                Squadra
-              </th>
-              <th className="px-4 py-3 text-center text-xs font-sans font-bold text-foreground uppercase tracking-wider">
-                Goal
-              </th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-border">
-            {scorers.map((scorer, index) => {
-              const position = index + 1;
-              const config = getPositionStyle(position);
-              const Icon = config.icon;
-              
-              return (
-                <tr
-                  key={index}
-                  className="hover-elevate"
-                  data-testid={`row-scorer-${position}`}
-                >
-                  <td className="px-4 py-3" data-testid={`cell-scorer-${position}-position`}>
-                    <div className={`w-8 h-8 rounded-md ${config.bg} ${config.text} flex items-center justify-center font-display font-bold text-sm`}>
-                      {Icon ? <Icon className="w-4 h-4" /> : position}
-                    </div>
-                  </td>
-                  <td className="px-4 py-3" data-testid={`cell-scorer-${position}-name`}>
-                    <span className="font-serif font-bold text-foreground">{scorer.playerName}</span>
-                  </td>
-                  <td className="px-4 py-3" data-testid={`cell-scorer-${position}-team`}>
-                    <span className="text-sm font-sans text-muted-foreground">{scorer.teamName}</span>
-                  </td>
-                  <td className="px-4 py-3 text-center" data-testid={`cell-scorer-${position}-goals`}>
-                    <div className="inline-flex items-center gap-2 px-3 py-1 rounded-md bg-primary text-primary-foreground font-display font-bold">
-                      <Target className="w-4 h-4" />
-                      <span className="text-lg tabular-nums">{scorer.goals}</span>
-                    </div>
-                  </td>
-                </tr>
-              );
-            })}
-          </tbody>
-        </table>
+    <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden" data-testid="card-top-scorers">
+      <div className="bg-slate-900 dark:bg-slate-100 px-6 py-4">
+        <h3 className="text-white dark:text-slate-900 font-sans font-bold text-lg text-center">
+          Capocannonieri
+        </h3>
       </div>
-      {scorers.length === 0 && (
-        <div className="py-12 text-center text-muted-foreground" data-testid="empty-state-scorers">
-          Nessun marcatore disponibile
+      <div className="p-5">
+        <div className="overflow-x-auto">
+          <table className="w-full">
+            <thead>
+              <tr className="border-b border-slate-200 dark:border-slate-800">
+                <th className="text-left text-xs font-semibold text-slate-600 dark:text-slate-400 pb-3 pr-2">#</th>
+                <th className="text-left text-xs font-semibold text-slate-600 dark:text-slate-400 pb-3">Giocatore</th>
+                <th className="text-left text-xs font-semibold text-slate-600 dark:text-slate-400 pb-3">Squadra</th>
+                <th className="text-center text-xs font-semibold text-slate-600 dark:text-slate-400 pb-3 pl-1">Goal</th>
+              </tr>
+            </thead>
+            <tbody>
+              {scorers.map((scorer, index) => {
+                const position = index + 1;
+                
+                return (
+                  <tr
+                    key={index}
+                    className={`border-b border-slate-100 dark:border-slate-800/50 last:border-0 ${
+                      index === 0 ? "bg-yellow-50/50 dark:bg-yellow-900/10" : ""
+                    }`}
+                    data-testid={`row-scorer-${position}`}
+                  >
+                    <td className="py-3 pr-2" data-testid={`cell-scorer-${position}-position`}>
+                      <span className={`font-bold text-sm ${
+                        index === 0 
+                          ? "text-yellow-600 dark:text-yellow-400" 
+                          : index === 1 
+                          ? "text-slate-500 dark:text-slate-400"
+                          : index === 2
+                          ? "text-amber-600 dark:text-amber-400"
+                          : "text-slate-500 dark:text-slate-500"
+                      }`}>
+                        {position}
+                      </span>
+                    </td>
+                    <td className="py-3" data-testid={`cell-scorer-${position}-name`}>
+                      <div className="flex items-center gap-2">
+                        {index <= 2 && (
+                          <Trophy className={`w-4 h-4 ${
+                            index === 0 ? "text-yellow-600 dark:text-yellow-400" : 
+                            index === 1 ? "text-slate-500 dark:text-slate-400" :
+                            "text-amber-600 dark:text-amber-400"
+                          }`} />
+                        )}
+                        <span className="font-semibold text-sm text-slate-900 dark:text-slate-100">
+                          {scorer.playerName}
+                        </span>
+                      </div>
+                    </td>
+                    <td className="py-3" data-testid={`cell-scorer-${position}-team`}>
+                      <span className="text-sm text-slate-600 dark:text-slate-400">{scorer.teamName}</span>
+                    </td>
+                    <td className="text-center py-3 pl-1" data-testid={`cell-scorer-${position}-goals`}>
+                      <div className="inline-flex items-center gap-1.5 min-w-[48px] h-7 px-2 bg-orange-600 text-white font-bold text-sm rounded-md">
+                        <Target className="w-3.5 h-3.5" />
+                        <span className="tabular-nums">{scorer.goals}</span>
+                      </div>
+                    </td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
         </div>
-      )}
+        {scorers.length === 0 && (
+          <div className="py-12 text-center text-slate-500 dark:text-slate-400" data-testid="empty-state-scorers">
+            Nessun marcatore disponibile
+          </div>
+        )}
+      </div>
     </div>
   );
 }

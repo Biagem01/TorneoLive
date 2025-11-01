@@ -1,4 +1,4 @@
-import { Trophy, TrendingUp } from "lucide-react";
+import { Trophy } from "lucide-react";
 
 interface TeamRanking {
   position: number;
@@ -19,122 +19,113 @@ interface RankingsTableProps {
 }
 
 export default function RankingsTable({ rankings, highlightTeams = [] }: RankingsTableProps) {
-  const getPositionStyle = (position: number) => {
-    if (position === 1) return "bg-yellow-500 text-white";
-    if (position === 2) return "bg-slate-400 text-white";
-    if (position === 3) return "bg-amber-600 text-white";
-    return "bg-muted text-muted-foreground";
-  };
-
   return (
-    <div className="bg-card rounded-lg border border-border overflow-hidden" data-testid="card-rankings">
-      <div className="overflow-x-auto">
-        <table className="w-full">
-          <thead className="bg-muted/50 border-b border-border">
-            <tr>
-              <th className="px-4 py-3 text-left text-xs font-sans font-bold text-muted-foreground uppercase tracking-wider w-16">
-                #
-              </th>
-              <th className="px-4 py-3 text-left text-xs font-sans font-bold text-muted-foreground uppercase tracking-wider">
-                Squadra
-              </th>
-              <th className="px-4 py-3 text-center text-xs font-sans font-bold text-muted-foreground uppercase tracking-wider">
-                G
-              </th>
-              <th className="px-4 py-3 text-center text-xs font-sans font-bold text-muted-foreground uppercase tracking-wider">
-                V
-              </th>
-              <th className="px-4 py-3 text-center text-xs font-sans font-bold text-muted-foreground uppercase tracking-wider">
-                P
-              </th>
-              <th className="px-4 py-3 text-center text-xs font-sans font-bold text-muted-foreground uppercase tracking-wider">
-                S
-              </th>
-              <th className="px-4 py-3 text-center text-xs font-sans font-bold text-muted-foreground uppercase tracking-wider">
-                GF
-              </th>
-              <th className="px-4 py-3 text-center text-xs font-sans font-bold text-muted-foreground uppercase tracking-wider">
-                GS
-              </th>
-              <th className="px-4 py-3 text-center text-xs font-sans font-bold text-muted-foreground uppercase tracking-wider">
-                DR
-              </th>
-              <th className="px-4 py-3 text-center text-xs font-sans font-bold text-foreground uppercase tracking-wider">
-                Pti
-              </th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-border">
-            {rankings.map((team) => {
-              const isHighlighted = highlightTeams.includes(team.teamName);
-              const isTopThree = team.position <= 3;
-              
-              return (
-                <tr
-                  key={team.position}
-                  className={`hover-elevate ${
-                    isHighlighted ? "bg-emerald-50 dark:bg-emerald-950/30 border-l-4 border-l-emerald-500" : ""
-                  }`}
-                  data-testid={`row-team-${team.position}`}
-                >
-                  <td className="px-4 py-3" data-testid={`cell-position-${team.position}`}>
-                    <div
-                      className={`w-8 h-8 rounded-md ${getPositionStyle(team.position)} flex items-center justify-center font-display font-bold text-sm`}
-                    >
-                      {team.position}
-                    </div>
-                  </td>
-                  <td className="px-4 py-3" data-testid={`cell-team-${team.position}`}>
-                    <div className="flex items-center gap-2">
-                      {isTopThree && (
-                        <TrendingUp className="w-4 h-4 text-emerald-500" />
-                      )}
-                      <span className="font-serif font-bold text-foreground">{team.teamName}</span>
-                    </div>
-                  </td>
-                  <td className="px-4 py-3 text-center font-sans text-sm text-muted-foreground tabular-nums" data-testid={`cell-played-${team.position}`}>
-                    {team.played}
-                  </td>
-                  <td className="px-4 py-3 text-center font-sans text-sm font-semibold text-emerald-600 dark:text-emerald-400 tabular-nums" data-testid={`cell-won-${team.position}`}>
-                    {team.won}
-                  </td>
-                  <td className="px-4 py-3 text-center font-sans text-sm text-muted-foreground tabular-nums" data-testid={`cell-drawn-${team.position}`}>
-                    {team.drawn}
-                  </td>
-                  <td className="px-4 py-3 text-center font-sans text-sm font-semibold text-red-600 dark:text-red-400 tabular-nums" data-testid={`cell-lost-${team.position}`}>
-                    {team.lost}
-                  </td>
-                  <td className="px-4 py-3 text-center font-sans text-sm text-muted-foreground tabular-nums" data-testid={`cell-gf-${team.position}`}>
-                    {team.goalsFor}
-                  </td>
-                  <td className="px-4 py-3 text-center font-sans text-sm text-muted-foreground tabular-nums" data-testid={`cell-ga-${team.position}`}>
-                    {team.goalsAgainst}
-                  </td>
-                  <td className={`px-4 py-3 text-center font-sans text-sm font-semibold tabular-nums ${
-                    team.goalDifference > 0 
-                      ? 'text-emerald-600 dark:text-emerald-400' 
-                      : team.goalDifference < 0 
-                      ? 'text-red-600 dark:text-red-400' 
-                      : 'text-muted-foreground'
-                  }`} data-testid={`cell-gd-${team.position}`}>
-                    {team.goalDifference > 0 ? `+${team.goalDifference}` : team.goalDifference}
-                  </td>
-                  <td className="px-4 py-3 text-center" data-testid={`cell-points-${team.position}`}>
-                    <span className="inline-flex items-center justify-center px-3 py-1 rounded-md bg-primary text-primary-foreground font-display font-bold text-lg tabular-nums">
-                      {team.points}
-                    </span>
-                  </td>
-                </tr>
-              );
-            })}
-          </tbody>
-        </table>
+    <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden" data-testid="card-rankings">
+      <div className="bg-slate-900 dark:bg-slate-100 px-6 py-4">
+        <h3 className="text-white dark:text-slate-900 font-sans font-bold text-lg text-center">
+          Classifica Generale
+        </h3>
       </div>
-      {rankings.length === 0 && (
-        <div className="py-12 text-center text-muted-foreground" data-testid="empty-state-rankings">
-          Nessuna classifica disponibile
+      <div className="p-5">
+        <div className="overflow-x-auto">
+          <table className="w-full">
+            <thead>
+              <tr className="border-b border-slate-200 dark:border-slate-800">
+                <th className="text-left text-xs font-semibold text-slate-600 dark:text-slate-400 pb-3 pr-2">#</th>
+                <th className="text-left text-xs font-semibold text-slate-600 dark:text-slate-400 pb-3">Squadra</th>
+                <th className="text-center text-xs font-semibold text-slate-600 dark:text-slate-400 pb-3 px-1">G</th>
+                <th className="text-center text-xs font-semibold text-slate-600 dark:text-slate-400 pb-3 px-1">V</th>
+                <th className="text-center text-xs font-semibold text-slate-600 dark:text-slate-400 pb-3 px-1">P</th>
+                <th className="text-center text-xs font-semibold text-slate-600 dark:text-slate-400 pb-3 px-1">S</th>
+                <th className="text-center text-xs font-semibold text-slate-600 dark:text-slate-400 pb-3 px-1">GF</th>
+                <th className="text-center text-xs font-semibold text-slate-600 dark:text-slate-400 pb-3 px-1">GS</th>
+                <th className="text-center text-xs font-semibold text-slate-600 dark:text-slate-400 pb-3 px-1">DR</th>
+                <th className="text-center text-xs font-semibold text-slate-600 dark:text-slate-400 pb-3 pl-1">Pti</th>
+              </tr>
+            </thead>
+            <tbody>
+              {rankings.map((team, idx) => {
+                const isHighlighted = highlightTeams.includes(team.teamName);
+                
+                return (
+                  <tr
+                    key={team.position}
+                    className={`border-b border-slate-100 dark:border-slate-800/50 last:border-0 ${
+                      isHighlighted ? "bg-emerald-50/50 dark:bg-emerald-900/10" : ""
+                    } ${idx === 0 ? "bg-yellow-50/50 dark:bg-yellow-900/10" : ""}`}
+                    data-testid={`row-team-${team.position}`}
+                  >
+                    <td className="py-3 pr-2" data-testid={`cell-position-${team.position}`}>
+                      <span className={`font-bold text-sm ${
+                        idx === 0 
+                          ? "text-yellow-600 dark:text-yellow-400" 
+                          : idx === 1 
+                          ? "text-slate-500 dark:text-slate-400"
+                          : idx === 2
+                          ? "text-amber-600 dark:text-amber-400"
+                          : "text-slate-500 dark:text-slate-500"
+                      }`}>
+                        {team.position}
+                      </span>
+                    </td>
+                    <td className="py-3" data-testid={`cell-team-${team.position}`}>
+                      <div className="flex items-center gap-2">
+                        {idx <= 2 && (
+                          <Trophy className={`w-4 h-4 ${
+                            idx === 0 ? "text-yellow-600 dark:text-yellow-400" : 
+                            idx === 1 ? "text-slate-500 dark:text-slate-400" :
+                            "text-amber-600 dark:text-amber-400"
+                          }`} />
+                        )}
+                        <span className="font-semibold text-sm text-slate-900 dark:text-slate-100">
+                          {team.teamName}
+                        </span>
+                      </div>
+                    </td>
+                    <td className="text-center py-3 px-1 text-sm text-slate-700 dark:text-slate-300 tabular-nums" data-testid={`cell-played-${team.position}`}>
+                      {team.played}
+                    </td>
+                    <td className="text-center py-3 px-1 text-sm text-slate-700 dark:text-slate-300 tabular-nums" data-testid={`cell-won-${team.position}`}>
+                      {team.won}
+                    </td>
+                    <td className="text-center py-3 px-1 text-sm text-slate-700 dark:text-slate-300 tabular-nums" data-testid={`cell-drawn-${team.position}`}>
+                      {team.drawn}
+                    </td>
+                    <td className="text-center py-3 px-1 text-sm text-slate-700 dark:text-slate-300 tabular-nums" data-testid={`cell-lost-${team.position}`}>
+                      {team.lost}
+                    </td>
+                    <td className="text-center py-3 px-1 text-sm text-slate-700 dark:text-slate-300 tabular-nums" data-testid={`cell-gf-${team.position}`}>
+                      {team.goalsFor}
+                    </td>
+                    <td className="text-center py-3 px-1 text-sm text-slate-700 dark:text-slate-300 tabular-nums" data-testid={`cell-ga-${team.position}`}>
+                      {team.goalsAgainst}
+                    </td>
+                    <td className={`text-center py-3 px-1 text-sm font-semibold tabular-nums ${
+                      team.goalDifference > 0 
+                        ? 'text-emerald-600 dark:text-emerald-400' 
+                        : team.goalDifference < 0 
+                        ? 'text-red-600 dark:text-red-400' 
+                        : 'text-slate-700 dark:text-slate-300'
+                    }`} data-testid={`cell-gd-${team.position}`}>
+                      {team.goalDifference > 0 ? `+${team.goalDifference}` : team.goalDifference}
+                    </td>
+                    <td className="text-center py-3 pl-1" data-testid={`cell-points-${team.position}`}>
+                      <span className="inline-flex items-center justify-center min-w-[36px] h-7 px-2 bg-emerald-600 text-white font-bold text-sm rounded-md tabular-nums">
+                        {team.points}
+                      </span>
+                    </td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
         </div>
-      )}
+        {rankings.length === 0 && (
+          <div className="py-12 text-center text-slate-500 dark:text-slate-400" data-testid="empty-state-rankings">
+            Nessuna classifica disponibile
+          </div>
+        )}
+      </div>
     </div>
   );
 }

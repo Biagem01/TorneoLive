@@ -7,8 +7,9 @@ import MatchEditForm from "@/components/MatchEditForm";
 import RankingsTable from "@/components/RankingsTable";
 import TopScorersLeaderboard from "@/components/TopScorersLeaderboard";
 import StatsCard from "@/components/StatsCard";
-import { Trophy, ArrowLeft, Users, Calendar, Target } from "lucide-react";
+import { Trophy, ArrowLeft, Users, Calendar, Target, Search } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import type { Match, Team } from "@shared/schema";
 import type { Player } from "@/types";
 
@@ -49,6 +50,8 @@ export default function TournamentDetail() {
   const [scorersB, setScorersB] = useState<{ playerName: string; minute: number }[]>([]);
   const [playersA, setPlayersA] = useState<Player[]>([]);
   const [playersB, setPlayersB] = useState<Player[]>([]);
+  const [statusFilter, setStatusFilter] = useState<"final" | "live" | "scheduled" | "all">("final");
+  const [teamSearch, setTeamSearch] = useState<string>("");
 
   // Fetch torneo
   const { data: tournamentRaw } = useQuery({
@@ -244,6 +247,27 @@ const groupRankings: GroupRanking[] = useMemo(() => {
     };
   });
 
+  // Filtra i match in base a status e ricerca squadra
+  const filteredMatches = useMemo(() => {
+    let filtered = enrichedMatches;
+
+    // Filtro per status
+    if (statusFilter !== "all") {
+      filtered = filtered.filter(m => m.status === statusFilter);
+    }
+
+    // Filtro per ricerca squadra
+    if (teamSearch.trim()) {
+      const searchLower = teamSearch.toLowerCase().trim();
+      filtered = filtered.filter(m => 
+        m.teamAName?.toLowerCase().includes(searchLower) ||
+        m.teamBName?.toLowerCase().includes(searchLower)
+      );
+    }
+
+    return filtered;
+  }, [enrichedMatches, statusFilter, teamSearch]);
+
   const totalMatches = matches.length;
   const totalGoals = matches.reduce((acc, m) => acc + (m.scoreA ?? 0) + (m.scoreB ?? 0), 0);
 
@@ -333,6 +357,80 @@ const groupRankings: GroupRanking[] = useMemo(() => {
         <section>
           <h2 className="text-4xl font-display font-bold mb-6 uppercase tracking-tight" data-testid="heading-matches">Partite</h2>
 
+          {/* Filtri e Ricerca */}
+          <div className="mb-8 bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 p-6 shadow-sm">
+            {/* Ricerca squadra */}
+            <div className="mb-4">
+              <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">
+                Cerca Squadra
+              </label>
+              <div className="relative">
+                <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
+                <Input
+                  type="text"
+                  placeholder="Digita il nome della squadra..."
+                  value={teamSearch}
+                  onChange={(e) => setTeamSearch(e.target.value)}
+                  className="pl-12 h-12 text-base bg-slate-50 dark:bg-slate-800 border-slate-200 dark:border-slate-700 focus:border-emerald-500 dark:focus:border-emerald-500 focus:ring-emerald-500"
+                  data-testid="input-team-search"
+                />
+              </div>
+            </div>
+
+            {/* Filtri status */}
+            <div>
+              <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">
+                Filtra per Stato
+              </label>
+              <div className="flex gap-2 flex-wrap">
+                <button
+                  onClick={() => setStatusFilter("all")}
+                  className={`px-5 py-2.5 rounded-lg font-medium text-sm transition-all ${
+                    statusFilter === "all"
+                      ? "bg-slate-900 dark:bg-slate-100 text-white dark:text-slate-900 shadow-md"
+                      : "bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700"
+                  }`}
+                  data-testid="button-filter-all"
+                >
+                  Tutte
+                </button>
+                <button
+                  onClick={() => setStatusFilter("final")}
+                  className={`px-5 py-2.5 rounded-lg font-medium text-sm transition-all ${
+                    statusFilter === "final"
+                      ? "bg-emerald-600 text-white shadow-md"
+                      : "bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700"
+                  }`}
+                  data-testid="button-filter-final"
+                >
+                  Finale
+                </button>
+                <button
+                  onClick={() => setStatusFilter("live")}
+                  className={`px-5 py-2.5 rounded-lg font-medium text-sm transition-all ${
+                    statusFilter === "live"
+                      ? "bg-red-600 text-white shadow-md"
+                      : "bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700"
+                  }`}
+                  data-testid="button-filter-live"
+                >
+                  Live
+                </button>
+                <button
+                  onClick={() => setStatusFilter("scheduled")}
+                  className={`px-5 py-2.5 rounded-lg font-medium text-sm transition-all ${
+                    statusFilter === "scheduled"
+                      ? "bg-blue-600 text-white shadow-md"
+                      : "bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700"
+                  }`}
+                  data-testid="button-filter-scheduled"
+                >
+                  Programmata
+                </button>
+              </div>
+            </div>
+          </div>
+
           {tournament?.type === "groupKnockout" && (
             <button
               onClick={async () => {
@@ -365,7 +463,7 @@ const groupRankings: GroupRanking[] = useMemo(() => {
           )}
 
           <MatchList
-            matches={enrichedMatches.map(match => ({
+            matches={filteredMatches.map(match => ({
               id: match.id,
               teamAName: match.teamAName || "Team A",
               teamBName: match.teamBName || "Team B",
@@ -385,31 +483,95 @@ const groupRankings: GroupRanking[] = useMemo(() => {
           />
         </section>
 
-        {/* Classifiche */}
-        {tournament?.type === "league" && rankings.length > 0 && (
+        {/* Classifiche e Statistiche - Layout Orizzontale per League */}
+        {tournament?.type === "league" && (rankings.length > 0 || topScorers.length > 0) && (
           <section>
-            <h2 className="text-4xl font-display font-bold mb-6 uppercase tracking-tight" data-testid="heading-rankings">Classifica</h2>
-            <RankingsTable rankings={rankings} />
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              {/* Classifica */}
+              {rankings.length > 0 && (
+                <div data-testid="heading-rankings">
+                  <RankingsTable rankings={rankings} />
+                </div>
+              )}
+
+              {/* Capocannonieri */}
+              {topScorers.length > 0 && (
+                <div data-testid="heading-top-scorers">
+                  <TopScorersLeaderboard scorers={topScorers} />
+                </div>
+              )}
+            </div>
           </section>
         )}
 
         {/* 🧩 Classifiche Gironi */}
         {tournament?.type === "groupKnockout" && groupRankings?.length > 0 && (
           <section>
-            <h2 className="text-4xl font-bold mb-6 uppercase">Classifiche Gironi</h2>
-            {groupRankings.map((group) => (
-              <div key={group.name} className="mb-8">
-                <h3 className="text-2xl font-bold mb-4 uppercase">{group.name}</h3>
-                <RankingsTable rankings={group.rankings} />
-              </div>
-            ))}
+            <h2 className="text-4xl font-display font-bold mb-6 uppercase tracking-tight">Classifiche Gironi</h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+              {groupRankings.map((group) => (
+                <div key={group.name} className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden">
+                  <div className="bg-slate-900 dark:bg-slate-100 px-6 py-4">
+                    <h3 className="text-white dark:text-slate-900 font-sans font-bold text-lg text-center">
+                      {group.name}
+                    </h3>
+                  </div>
+                  <div className="p-5">
+                    <table className="w-full">
+                      <thead>
+                        <tr className="border-b border-slate-200 dark:border-slate-800">
+                          <th className="text-left text-xs font-semibold text-slate-600 dark:text-slate-400 pb-3 pr-2">#</th>
+                          <th className="text-left text-xs font-semibold text-slate-600 dark:text-slate-400 pb-3">Squadra</th>
+                          <th className="text-center text-xs font-semibold text-slate-600 dark:text-slate-400 pb-3 px-1">G</th>
+                          <th className="text-center text-xs font-semibold text-slate-600 dark:text-slate-400 pb-3 px-1">V</th>
+                          <th className="text-center text-xs font-semibold text-slate-600 dark:text-slate-400 pb-3 px-1">P</th>
+                          <th className="text-center text-xs font-semibold text-slate-600 dark:text-slate-400 pb-3 px-1">S</th>
+                          <th className="text-center text-xs font-semibold text-slate-600 dark:text-slate-400 pb-3 pl-1">Pti</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {group.rankings.map((team, idx) => (
+                          <tr 
+                            key={idx}
+                            className={`border-b border-slate-100 dark:border-slate-800/50 last:border-0 ${
+                              idx === 0 ? "bg-emerald-50/50 dark:bg-emerald-900/10" : ""
+                            }`}
+                          >
+                            <td className="py-3 pr-2">
+                              <span className={`font-bold text-sm ${
+                                idx === 0 ? "text-emerald-600 dark:text-emerald-400" : "text-slate-500 dark:text-slate-500"
+                              }`}>
+                                {team.position}
+                              </span>
+                            </td>
+                            <td className="py-3">
+                              <span className="font-semibold text-sm text-slate-900 dark:text-slate-100">
+                                {team.teamName}
+                              </span>
+                            </td>
+                            <td className="text-center py-3 px-1 text-sm text-slate-700 dark:text-slate-300">{team.played}</td>
+                            <td className="text-center py-3 px-1 text-sm text-slate-700 dark:text-slate-300">{team.won}</td>
+                            <td className="text-center py-3 px-1 text-sm text-slate-700 dark:text-slate-300">{team.drawn}</td>
+                            <td className="text-center py-3 px-1 text-sm text-slate-700 dark:text-slate-300">{team.lost}</td>
+                            <td className="text-center py-3 pl-1">
+                              <span className="inline-flex items-center justify-center min-w-[32px] h-7 px-2 bg-emerald-600 text-white font-bold text-sm rounded-md">
+                                {team.points}
+                              </span>
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              ))}
+            </div>
           </section>
         )}
 
-        {/* Top Scorers */}
-        {topScorers.length > 0 && (
-          <section>
-            <h2 className="text-4xl font-display font-bold mb-6 uppercase tracking-tight" data-testid="heading-top-scorers">Capocannonieri</h2>
+        {/* Capocannonieri per Tornei a Gironi */}
+        {tournament?.type === "groupKnockout" && topScorers.length > 0 && (
+          <section data-testid="heading-top-scorers">
             <TopScorersLeaderboard scorers={topScorers} />
           </section>
         )}
